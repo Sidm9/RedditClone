@@ -24,7 +24,7 @@ export class User {
     username!: string;
 
     // LOOK NO FIELD DECORATOER heRE
-
+    // THIS IS FOR HIDING THE FEILD
     @Property({ type: 'text' })
     password!: string;
 
