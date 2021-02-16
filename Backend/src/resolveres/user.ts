@@ -1,7 +1,7 @@
 import argon2 from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 // INSTEAD OF ADDING MULTIPLE ARGS WE CAN USE CLASS AND USE ITS PROPERTY AS A TYPE
 @InputType()
 class UsernamePasswordInput {
@@ -33,11 +33,26 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
 
+    @Query(() => User, { nullable: true })
+    async me(
+        @Ctx() { req, em }: MyContext
+        
+    ) {
+        console.log(req.session);
+        console.log
+        // You are not logged in1
+        if (!req.session.userId) {
+            return null
+        }
+        const user = await em.findOne(User, { id: req.session!.userId });
+        return user;
+    }
+
     @Mutation(() => UserResponse)
     // REGISTER FUNCTION
     async register(
         @Arg('options') options: UsernamePasswordInput,
-        @Ctx() { em }: MyContext
+        @Ctx() { em, req }: MyContext
     ): Promise<UserResponse> {
         if (options.username.length <= 2)
             return {
@@ -74,7 +89,15 @@ export class UserResolver {
             console.log("message : ", err);
         }
 
+        // Store user id session 
+        // THis will keep a cookie on the user
+        // keep them logged in 
+        req.session.userId = "user.id";
+        
+
         return { user };
+
+       
     }
 
 
@@ -82,7 +105,7 @@ export class UserResolver {
     // LOGIN FUNCTION
     async login(
         @Arg('options') options: UsernamePasswordInput,
-        @Ctx() { em }: MyContext
+        @Ctx() { em, req, res }: MyContext
     ): Promise<UserResponse> {
         const user = await em.findOne(User, { username: options.username });
         if (!user) {
@@ -104,6 +127,10 @@ export class UserResolver {
                 },],
             }
         }
+
+        // SESSION PART req is coming from types.ts as a context
+        req.session!.userId = user.id;
+
         return {
             user,
         }
