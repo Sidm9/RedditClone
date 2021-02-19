@@ -2,6 +2,7 @@ import argon2 from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { EntityManager } from '@mikro-orm/postgresql'
 // INSTEAD OF ADDING MULTIPLE ARGS WE CAN USE CLASS AND USE ITS PROPERTY AS A TYPE
 @InputType()
 class UsernamePasswordInput {
@@ -55,7 +56,7 @@ export class UserResolver {
         @Ctx() { em, req }: MyContext
     ): Promise<UserResponse> {
 
-        
+
         if (options.username.length <= 2) {
             return {
                 errors: [
@@ -79,11 +80,31 @@ export class UserResolver {
         }
 
         const hashedPassword = await argon2.hash(options.password);
-        const user = em.create(User, { username: options.username, password: hashedPassword });
+        
+        // LINE 85 IS ORM PART
+        //const user = em.create(User, { username: options.username, password: hashedPassword });
 
+        let user;
         try {
-            (em as EntityManager).createQueryBuilder
-            await em.persistAndFlush(user);
+            // TypeCasting to EntityManager (QUERYBUILDER)
+            // This is alternative to persistandFlush
+            const result = await (em as EntityManager)
+                .createQueryBuilder(User)
+                .getKnexQuery()
+                .insert(
+                    {
+                        username: options.username,
+                        password: hashedPassword,
+                        created_at: new Date(),
+                        updated_at: new Date(),
+                    }
+                ).returning("*"); // returning everything!!
+            user = result[0];
+
+            // line 88 is doing the same thing as line below 
+            // await em.persistAndFlush(user);
+
+
         } catch (err) {
             // CODE OF DUPLICATE USERNAME ERROR
             if (err.code === '23505') {
