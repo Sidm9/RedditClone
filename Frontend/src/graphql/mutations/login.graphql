@@ -1,0 +1,34 @@
+#  THIS IS THE TEMPLATE FROM GRAPHQL PLAYGROUND
+#  $username and $password will be mapped directly down
+
+# HARD CODED MANNER 
+
+# mutation {
+#   login(options: { username: "sid", password: "sid" }){
+#     errors{
+#       field
+#       message
+#     }
+#     user {
+#       id
+#       username
+#     }
+#   }
+ 
+# }
+
+
+
+
+mutation Login($options: UsernamePasswordInput!) {
+    login(options : $options){
+     errors{
+      field
+      message
+    }
+    user {
+      id
+      username
+    }
+  }
+}
