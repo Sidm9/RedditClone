@@ -1,37 +1,38 @@
-import { FormControl, FormLabel, Input, FormErrorMessage, Button, Box } from '@chakra-ui/react'
+import React from 'react';
+import { Button, Box } from '@chakra-ui/react'
 import { Form, Formik } from 'formik'
-import React from 'react'
-import { useMutation } from 'urql'
 import { InputField } from '../components/InputField'
 import Wrapper from '../components/Wrapper'
-
+import { useRegisterMutation } from '../generated/graphql'
+import { toErrorMap } from '../../utils/toErrorMap';
+import { useRouter } from 'next/router';
 interface registerProps { }
 
-// THIS IS THE TEMPLATE FROM GRAPHQL PLAYGROUND
-// $username and $password will be mapped directly down 
-const REGISTER_MUT = `
-mutation Register($username: String!, $password:String!) {
-  register(options: { username: $username, password: $password }) {
-    errors {
-      field
-      message
-    }
-    user {
-      id
-      username
-    }
-  }
-}
-`;
-
 const Register: React.FC<registerProps> = ({ }) => {
-    const [, register] = useMutation(REGISTER_MUT);
+    // Use Register Mutaion is a hook generated from the 
+    // graph.tsx in graphql folder
+    // --- all this is generated from graphql-code-generator ---
+    const [, register] = useRegisterMutation();
+
+    // For routing to other pages hook
+    const router = useRouter();
     return (
         <Wrapper variant="small">
             <Formik
                 initialValues={{ username: "", password: "" }}
-                onSubmit={async (values) => {
+                onSubmit={async (values, { setErrors }) => {
                     const response = await register(values);
+                    if (response.data?.register.errors) {
+                        // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
+                        setErrors(toErrorMap(response.data.register.errors));
+                    }
+                    // IF USERNAME IS UNIQUE AND ALL CONDItIONS ARE MET
+                    else if (response.data?.register.user) {
+                        // WORKED
+
+                        console.log(response.data);
+                        router.push("/");
+                    }
                 }}
             >
                 {({ isSubmitting }) => (

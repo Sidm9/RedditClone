@@ -36,7 +36,7 @@ export class UserResolver {
     @Query(() => User, { nullable: true })
     async me(
         @Ctx() { req, em }: MyContext
-        
+
     ) {
         console.log(req.session);
         console.log
@@ -54,25 +54,35 @@ export class UserResolver {
         @Arg('options') options: UsernamePasswordInput,
         @Ctx() { em, req }: MyContext
     ): Promise<UserResponse> {
-        if (options.username.length <= 2)
-            return {
-                errors: [{
-                    field: "username",
-                    message: "length must be greater than 2",
-                },],
-            }
 
-        if (options.password.length <= 3)
+        
+        if (options.username.length <= 2) {
             return {
-                errors: [{
-                    field: "username",
-                    message: "length must be greater than 2",
-                },],
+                errors: [
+                    {
+                        field: "username",
+                        message: "length must be greater than 2",
+                    },
+                ],
             }
+        }
+
+        if (options.password.length <= 2) {
+            return {
+                errors: [
+                    {
+                        field: "password",
+                        message: "length must be greater than 2",
+                    },
+                ],
+            }
+        }
+
         const hashedPassword = await argon2.hash(options.password);
         const user = em.create(User, { username: options.username, password: hashedPassword });
 
         try {
+            (em as EntityManager).createQueryBuilder
             await em.persistAndFlush(user);
         } catch (err) {
             // CODE OF DUPLICATE USERNAME ERROR
@@ -88,16 +98,16 @@ export class UserResolver {
             }
             console.log("message : ", err);
         }
-
+        console.log("I AM USER COMING FROM RESOLVER: ", user)
         // Store user id session 
         // THis will keep a cookie on the user
         // keep them logged in 
         req.session.userId = "user.id";
-        
+
 
         return { user };
 
-       
+
     }
 
 

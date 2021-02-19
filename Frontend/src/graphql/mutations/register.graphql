@@ -1,0 +1,15 @@
+#  THIS IS THE TEMPLATE FROM GRAPHQL PLAYGROUND
+#  $username and $password will be mapped directly down
+
+mutation Register($username: String!, $password: String!) {
+  register(options: { username: $username, password: $password }) {
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      username
+    }
+  }
+}

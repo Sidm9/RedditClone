@@ -9,7 +9,7 @@ export class User {
     @PrimaryKey()
     id!: number;
 
-    @Field(() => String) // this is too a graohql Decorator...
+    @Field(() => String) // this is too a graphql Decorator...
     @Property({ type: "date" })
     createdAt = new Date();
 
@@ -20,6 +20,7 @@ export class User {
 
 
     @Field() // this is too a graohql Decorator...
+    // NOTICE THE UNIQUE PROPERTY!
     @Property({ type: 'text', unique: true })
     username!: string;
 
