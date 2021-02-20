@@ -22,7 +22,8 @@ const main = async () => {
     const app = express();
 
     // REDIS BOILERPLATE FROM DOCS
-    let RedisStore = connectRedis(session)
+   
+    let RedisStore = connectRedis(session) 
     let redisClient = redis.createClient()
 
     // LOGIN CORS REQUEST

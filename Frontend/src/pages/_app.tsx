@@ -4,7 +4,7 @@ import { Fonts } from '../Fonts'
 import { cacheExchange, Cache, QueryInput } from '@urql/exchange-graphcache';
 import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
 
-// HELPER FUNCTION TO CAST TYPES
+// HELPER FUNCTION TO CAST TYPES IN CACHING!!
 function betterUpdateQuery<Result, Query>(
   cache: Cache,
   qi: QueryInput,
@@ -16,7 +16,7 @@ function betterUpdateQuery<Result, Query>(
 
 const client = createClient({
   url: "http://localhost:4000/graphql",
-  fetchOptions: {
+  fetchOptions: { 
     credentials: "include",
   },
 

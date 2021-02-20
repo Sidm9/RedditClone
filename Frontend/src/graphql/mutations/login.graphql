@@ -26,9 +26,9 @@ mutation Login($options: UsernamePasswordInput!) {
       field
       message
     }
+    # This is a fragment like if we want to fetch more data and not hardcode
     user {
-      id
-      username
+      ...RegularUser
     }
   }
 }

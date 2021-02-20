@@ -7,9 +7,9 @@ mutation Register($username: String!, $password: String!) {
       field
       message
     }
+        # This is a fragment like if we want to fetch different data and not hardcode
     user {
-      id
-      username
+      ...RegularUser
     }
   }
 }
