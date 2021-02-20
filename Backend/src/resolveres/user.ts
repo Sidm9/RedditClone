@@ -3,6 +3,7 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { EntityManager } from '@mikro-orm/postgresql'
+import { COOKIE_NAME } from "../constants";
 // INSTEAD OF ADDING MULTIPLE ARGS WE CAN USE CLASS AND USE ITS PROPERTY AS A TYPE
 @InputType()
 class UsernamePasswordInput {
@@ -80,7 +81,7 @@ export class UserResolver {
         }
 
         const hashedPassword = await argon2.hash(options.password);
-        
+
         // LINE 85 IS ORM PART
         //const user = em.create(User, { username: options.username, password: hashedPassword });
 
@@ -166,4 +167,24 @@ export class UserResolver {
             user,
         }
     }
+
+
+    //Logout
+    @Mutation(() => Boolean)
+        
+    logout(@Ctx() { req , res /* res for clearing the cookie */ }: MyContext) {
+
+        return new Promise(resolve => req.session.destroy( (err: any) => { // Remove the session for redis
+        
+            res.clearCookie(COOKIE_NAME);  // Clearing Cookie 
+
+            if (err) { // If a problem occours
+                resolve(false);
+                return
+            }
+            resolve(true) // Logout Successfull
+            
+         }))  
+    }
+
 }
