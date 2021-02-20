@@ -2,7 +2,7 @@ import { ChakraProvider, ColorModeProvider, extendTheme } from '@chakra-ui/react
 import { Provider, createClient, dedupExchange, fetchExchange } from 'urql';
 import { Fonts } from '../Fonts'
 import { cacheExchange, Cache, QueryInput } from '@urql/exchange-graphcache';
-import { LoginMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
+import { LoginMutation, LogoutMutation, MeDocument, MeQuery, RegisterMutation } from '../generated/graphql';
 
 // HELPER FUNCTION TO CAST TYPES IN CACHING!!
 function betterUpdateQuery<Result, Query>(
@@ -16,19 +16,28 @@ function betterUpdateQuery<Result, Query>(
 
 const client = createClient({
   url: "http://localhost:4000/graphql",
-  fetchOptions: { 
+  fetchOptions: {
     credentials: "include",
   },
 
   // GraphCache 
   // This will run whenever a  login / register mutation runs  and it will going to 
   // update the cache (SPECIFICALLY THE ME QUERY!)
-  
+
   exchanges: [
     dedupExchange,
     cacheExchange({
       updates: {
         Mutation: {
+          logout: (_result, args, cache, info) => {
+            // me Query
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              _result,
+              () => ({ me: null })
+            );
+          },
           login: (_result, args, cache, info) => {
             betterUpdateQuery<LoginMutation, MeQuery>(
               cache,
