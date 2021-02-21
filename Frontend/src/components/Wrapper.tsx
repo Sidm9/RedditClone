@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import {Box} from '@chakra-ui/core'
 import React from 'react'
 
 

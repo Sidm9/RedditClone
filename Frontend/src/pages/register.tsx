@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box } from '@chakra-ui/react'
+import { Button, Box } from '@chakra-ui/core'
 import { Form, Formik } from 'formik'
 import { InputField } from '../components/InputField'
 import Wrapper from '../components/Wrapper'
@@ -54,7 +54,7 @@ const Register: React.FC<registerProps> = ({ }) => {
                             mt={4}
                             type="submit"
                             isLoading={isSubmitting}
-                            colorScheme="teal"
+                            variantColor="teal"
                         >
                             Register
             </Button>
