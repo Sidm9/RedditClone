@@ -24,6 +24,15 @@ export class User {
     @Property({ type: 'text', unique: true })
     username!: string;
 
+
+
+    @Field() // this is too a graohql Decorator...
+    // NOTICE THE UNIQUE PROPERTY!
+    @Property({ type: 'text', unique: true })
+    email!: string;
+
+
+
     // LOOK NO FIELD DECORATOER heRE
     // THIS IS FOR HIDING THE FEILD
     @Property({ type: 'text' })

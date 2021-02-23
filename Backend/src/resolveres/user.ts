@@ -1,18 +1,11 @@
 import argon2 from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, InputType, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { EntityManager } from '@mikro-orm/postgresql'
 import { COOKIE_NAME } from "../constants";
-// INSTEAD OF ADDING MULTIPLE ARGS WE CAN USE CLASS AND USE ITS PROPERTY AS A TYPE
-@InputType()
-class UsernamePasswordInput {
-    @Field()
-    username: string
-    @Field()
-    password: string
-}
-
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
+import { validateRegister } from "../utils/validateRegister";
 @ObjectType()
 // If something is wrong with the field
 class FieldError {
@@ -34,6 +27,14 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+
+    // @Mutation(() => Boolean)
+    // async forgotPassowrd(
+    //     @Arg('email') email: string,
+    //     @Ctx() { em }: MyContext
+    // ) {
+    //     const user = await em.findOne(User, {})
+    // }
 
     @Query(() => User, { nullable: true })
     async me(
@@ -58,27 +59,9 @@ export class UserResolver {
     ): Promise<UserResponse> {
 
 
-        if (options.username.length <= 2) {
-            return {
-                errors: [
-                    {
-                        field: "username",
-                        message: "length must be greater than 2",
-                    },
-                ],
-            }
-        }
+        const errors = validateRegister(options);
+        if (errors) return { errors };
 
-        if (options.password.length <= 2) {
-            return {
-                errors: [
-                    {
-                        field: "password",
-                        message: "length must be greater than 2",
-                    },
-                ],
-            }
-        }
 
         const hashedPassword = await argon2.hash(options.password);
 
@@ -97,6 +80,7 @@ export class UserResolver {
                         username: options.username,
                         password: hashedPassword,
                         created_at: new Date(),
+                        email: options.email,
                         updated_at: new Date(),
                     }
                 ).returning("*"); // returning everything!!
@@ -136,26 +120,31 @@ export class UserResolver {
     @Mutation(() => UserResponse)
     // LOGIN FUNCTION
     async login(
-        @Arg('options') options: UsernamePasswordInput,
+        @Arg('usernameOrEmail') usernameOrEmail: string,
+        @Arg('password') password: string,
         @Ctx() { em, req, res }: MyContext
     ): Promise<UserResponse> {
-        const user = await em.findOne(User, { username: options.username });
+        const user = await em.findOne(User,
+            usernameOrEmail.includes("@") ?
+                { email: usernameOrEmail } :
+                { username: usernameOrEmail }
+        );
         if (!user) {
             return {
                 errors: [
                     {
-                        field: "username",
-                        message: 'that username does not exists'
+                        field: "usernameOrEmail",
+                        message: 'That Username does not exists'
                     },
                 ],
             };
         }
-        const valid = await argon2.verify(user.password, options.password);
+        const valid = await argon2.verify(user.password, password);
         if (!valid) {
             return {
                 errors: [{
                     field: "password",
-                    message: "incorrect password",
+                    message: "Incorrect password",
                 },],
             }
         }
@@ -171,11 +160,11 @@ export class UserResolver {
 
     //Logout
     @Mutation(() => Boolean)
-        
-    logout(@Ctx() { req , res /* res for clearing the cookie */ }: MyContext) {
 
-        return new Promise(resolve => req.session.destroy( (err: any) => { // Remove the session for redis
-        
+    logout(@Ctx() { req, res /* res for clearing the cookie */ }: MyContext) {
+
+        return new Promise(resolve => req.session.destroy((err: any) => { // Remove the session for redis
+
             res.clearCookie(COOKIE_NAME);  // Clearing Cookie 
 
             if (err) { // If a problem occours
@@ -183,8 +172,8 @@ export class UserResolver {
                 return
             }
             resolve(true) // Logout Successfull
-            
-         }))  
+
+        }))
     }
 
 }

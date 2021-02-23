@@ -8,7 +8,7 @@ export class PostResolver {
 
     @Query(() => [Post])
     // THE CONTEXT PART IN THE INDEX.JS i.e "em"
-    // AND @ctx() IS THE DECORATOR FOR COTEXT
+    // AND @ctx() IS THE DECORATOR FOR CONTEXT
     posts(@Ctx() { em }: MyContext): Promise<Post[]> {
         // RETURNING THE POSTS FROM THE ORM
         // THIS IS DESTRUCTURED ...

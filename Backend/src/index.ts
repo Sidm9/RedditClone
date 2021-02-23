@@ -14,27 +14,28 @@ import connectRedis from 'connect-redis'
 import cors from "cors";
 
 
-
 const main = async () => {
+
+    // sendEmail("bob@bob.com" , "helo")
     const orm = await MikroORM.init(microConfig);
     await orm.getMigrator().up();
 
     const app = express();
 
     // REDIS BOILERPLATE FROM DOCS
-   
-    let RedisStore = connectRedis(session) 
+
+    let RedisStore = connectRedis(session)
     let redisClient = redis.createClient()
 
     // LOGIN CORS REQUEST
-    
+
     app.use(
         cors({
             origin: "http://localhost:3000",
             credentials: true,
         })
     );
-    
+
     app.use(
         session({
             name: COOKIE_NAME,
