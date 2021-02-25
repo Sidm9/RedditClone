@@ -1,7 +1,9 @@
 #  THIS IS THE TEMPLATE FROM GRAPHQL PLAYGROUND
 #  $username and $password will be mapped directly down
 
+# --------------------------
 # HARD CODED MANNER
+# --------------------------
 
 # mutation {
 #   login(options: { username: "sid", password: "sid" }){
@@ -17,15 +19,31 @@
 
 # }
 
+
+# --------------------------
+# WITH FRAGMENTS
+# --------------------------
+
+# mutation Login($usernameOrEmail: String!, $password: String!) {
+#   login (usernameOrEmail: $usernameOrEmail , password : $password) {
+#     errors {
+#      ...RegularError  
+#     }
+#     # This is a fragment like if we want to fetch more data and not hardcode
+#     user {
+#       ...RegularUser
+#     }
+#   }
+# }
+
+
+# --------------------------
+# WITH NESTED FRAGMENTS
+# --------------------------
+
+
 mutation Login($usernameOrEmail: String!, $password: String!) {
-  login (usernameOrEmail: $usernameOrEmail , password : $password) {
-    errors {
-      field
-      message
-    }
-    # This is a fragment like if we want to fetch more data and not hardcode
-    user {
-      ...RegularUser
-    }
+  login(usernameOrEmail: $usernameOrEmail, password: $password) {
+    ...RegularUserResponse
   }
 }

@@ -1,15 +1,37 @@
 #  THIS IS THE TEMPLATE FROM GRAPHQL PLAYGROUND
 #  $username and $password will be mapped directly down
 
+
+
+# --------------------------
+# WITH FRAGMENTS
+# --------------------------
+
+
+
+# mutation Register($options: UsernamePasswordInput!) {
+#   register(options: $options) {
+#     errors {
+#       ...RegularError
+#     }
+#         # This is a fragment like if we want to fetch different data and not hardcode
+#     user {
+#       ...RegularUser
+#     }
+#   }
+# }
+
+
+
+# --------------------------
+# WITH NESTED FRAGMENTS
+# --------------------------
+ 
+
+
 mutation Register($options: UsernamePasswordInput!) {
   register(options: $options) {
-    errors {
-      field
-      message
-    }
-        # This is a fragment like if we want to fetch different data and not hardcode
-    user {
-      ...RegularUser
-    }
+    ...RegularUserResponse
   }
 }
+
