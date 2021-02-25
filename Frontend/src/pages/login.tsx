@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box } from '@chakra-ui/core'
+import { Button, Box, Flex, Link } from '@chakra-ui/core'
 import { Form, Formik } from 'formik'
 import { InputField } from '../components/InputField'
 import Wrapper from '../components/Wrapper'
@@ -8,7 +8,7 @@ import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlClient';
-
+import NextLink from "next/link";
 
 const Login: React.FC<{}> = ({ }) => {
     // Use Login Mutaion is a hook generated from the 
@@ -28,7 +28,7 @@ const Login: React.FC<{}> = ({ }) => {
                     // THIS IS FROM THE NEW MANNER OF GRAPQL QUERY WE ARE USING IT
                     // SLIGHTLY DIFFERENT FROM THE REGISTER.GRAPQHQL
 
-                    const response = await login( values );
+                    const response = await login(values);
                     if (response.data?.login.errors) {
                         // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
                         setErrors(toErrorMap(response.data.login.errors));
@@ -57,6 +57,13 @@ const Login: React.FC<{}> = ({ }) => {
                                 type="password"
                             />
                         </Box>
+
+                        <Flex mt={2}>
+                            <NextLink href="/forgot-password">
+                                <Link ml="auto">Forgot Password?</Link>
+                            </NextLink>
+                        </Flex>
+
                         <Button
                             mt={4}
                             type="submit"
