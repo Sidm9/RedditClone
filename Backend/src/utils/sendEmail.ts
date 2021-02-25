@@ -13,8 +13,8 @@ export async function sendEmail(to: string, html: string) {
         port: 587,
         secure: false, // true for 465, false for other ports
         auth: {
-            user: 'lfiscn4znhdp5ryi@ethereal.email', // generated ethereal user
-            pass: '8qTM2NAAUvnRV8DaJR', // generated ethereal password
+            user: 'ygxpmow43pfsdf2w@ethereal.email', // generated ethereal user
+            pass: 'u25yKJCAws55T7FpT7', // generated ethereal password
         },
     });
 
@@ -34,4 +34,4 @@ export async function sendEmail(to: string, html: string) {
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
-sendEmail('to','html').catch(console.error);
+sendEmail('to', 'html').catch(console.error);

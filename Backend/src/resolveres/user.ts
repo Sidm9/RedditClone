@@ -3,9 +3,11 @@ import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import { EntityManager } from '@mikro-orm/postgresql'
-import { COOKIE_NAME } from "../constants";
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
+import { sendEmail } from "../utils/sendEmail";
+import { v4 } from 'uuid';
 @ObjectType()
 // If something is wrong with the field
 class FieldError {
@@ -28,13 +30,37 @@ class UserResponse {
 @Resolver()
 export class UserResolver {
 
-    // @Mutation(() => Boolean)
-    // async forgotPassowrd(
-    //     @Arg('email') email: string,
-    //     @Ctx() { em }: MyContext
-    // ) {
-    //     const user = await em.findOne(User, {})
-    // }
+    @Mutation(() => Boolean)
+    async forgotPassowrd(
+        @Arg('email') email: string,
+        @Ctx() { em, redis }: MyContext // REDIS CONTEXT HERE FOR TOKEN SESSION
+    ) {
+        const user = await em.findOne(User, { email })
+
+        if (!user) {
+
+            // Email is not in the database
+            return true;
+
+        }
+        console.log("RUNNNNNNNNNNNNNNNNNN");
+        const token: string = v4(); // Random String
+
+        // PREFIX IS GENERALLY USED FOR IDENTIFYING 
+
+        await redis.set(FORGET_PASSWORD_PREFIX + token, user.id, "ex", 1000 * 60 * 60 * 24 * 3); // Expiry for 3 Days
+
+
+        await sendEmail( // From the nodemailer 
+            email,
+            `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+        );// Generate a TOKEN FROM THE REDIS AND THAT WILL REFERENCEE TO THE USER WHO WANTS TO CHANGE THE PASS
+
+
+
+        return true;
+    }
+
 
     @Query(() => User, { nullable: true })
     async me(

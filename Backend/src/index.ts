@@ -8,24 +8,32 @@ import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolveres/hello";
 import { PostResolver } from "./resolveres/posts";
 import { UserResolver } from "./resolveres/user";
-import redis from 'redis';
+import Redis from "ioredis";
 import session from 'express-session';
 import connectRedis from 'connect-redis'
 import cors from "cors";
+import { sendEmail } from "./utils/sendEmail";
 
 
 const main = async () => {
 
     // sendEmail("bob@bob.com" , "helo")
     const orm = await MikroORM.init(microConfig);
-    await orm.getMigrator().up();
+
+    try {
+        await orm.getMigrator().up();
+    } catch (error) {
+        console.log(error);
+    }
+
 
     const app = express();
 
     // REDIS BOILERPLATE FROM DOCS
 
-    let RedisStore = connectRedis(session)
-    let redisClient = redis.createClient()
+    const RedisStore = connectRedis(session);
+    const redis = new Redis();
+
 
     // LOGIN CORS REQUEST
 
@@ -41,7 +49,7 @@ const main = async () => {
             name: COOKIE_NAME,
             store: new RedisStore(
                 // Touch ttl (How long it should last)
-                { client: redisClient, disableTouch: true, }
+                { client: redis, disableTouch: true, }
             ),
             cookie: {
                 maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years 
@@ -60,7 +68,7 @@ const main = async () => {
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
             resolvers: [HelloResolver, PostResolver, UserResolver],
-            // CLASS VAIDATIONS
+            // CLASS VALIDATIONS
             validate: false,
         }),
         // SPECIAL OBJECT THAT IS ACCESSIBLE TO ALL RESOLVERs
@@ -68,7 +76,7 @@ const main = async () => {
 
         // Traditional req res from express 
         // Apollo Supports this!!! !
-        context: ({ req, res }) => ({ em: orm.em, req, res })
+        context: ({ req, res }) => ({ em: orm.em, req, res, redis })
     })
 
     app.get('/', (_, res) => {
