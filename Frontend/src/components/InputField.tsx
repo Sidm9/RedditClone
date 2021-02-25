@@ -2,6 +2,7 @@ import { FormControl, FormLabel, Input, FormErrorMessage } from '@chakra-ui/core
 import { useField } from 'formik'
 import React from 'react'
 
+// TEMPLATE WRAPPER FOR AUTHENTICATION 
 
 // & means taking 2 params {1. For Ts Types , 2. For our custom commponent}
 type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
