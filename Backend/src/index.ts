@@ -1,7 +1,5 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
 import { COOKIE_NAME, __prod__ } from './constants'
-import microConfig from "./mikro-orm.config";
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from "type-graphql";
@@ -12,18 +10,12 @@ import Redis from "ioredis";
 import session from 'express-session';
 import connectRedis from 'connect-redis'
 import cors from "cors";
-import { sendEmail } from "./utils/sendEmail";
+import conn from "./type-orm.config";
 
 const main = async () => {
 
-    // sendEmail("bob@bob.com" , "helo")
-    const orm = await MikroORM.init(microConfig);
 
-    try {
-        await orm.getMigrator().up();
-    } catch (error) {
-        console.log(error);
-    }
+    conn();
 
 
     const app = express();
@@ -75,7 +67,7 @@ const main = async () => {
 
         // Traditional req res from express 
         // Apollo Supports this!!! !
-        context: ({ req, res }) => ({ em: orm.em, req, res, redis })
+        context: ({ req, res }) => ({ req, res, redis })
     })
 
     app.get('/', (_, res) => {

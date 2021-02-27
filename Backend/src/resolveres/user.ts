@@ -2,12 +2,12 @@ import argon2 from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
 import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
-import { EntityManager } from '@mikro-orm/postgresql'
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from 'uuid';
+import { getConnection } from "typeorm";
 @ObjectType()
 // If something is wrong with the field
 class FieldError {
@@ -34,7 +34,7 @@ export class UserResolver {
     async changePassword(
         @Arg("token") token: string,
         @Arg("newPassword") newPassword: string,
-        @Ctx() { redis, em, req }: MyContext
+        @Ctx() { redis, req }: MyContext
     ): Promise<UserResponse> {
         if (newPassword.length <= 2) {
             return {
@@ -60,7 +60,8 @@ export class UserResolver {
             };
         }
 
-        const user = await em.findOne(User, { id: parseInt(userId) }); // REDIS USES STRINGS AND WE ARE USING ID TYPE 
+        const userIdNum = parseInt(userId);
+        const user = await User.findOne(userIdNum);// REDIS USES STRINGS AND WE ARE USING ID TYPE 
 
         // THIS IS THE EDDGE CASE (TOKEN COULD BE DELETED OR USER COULD TAMPER WITH IT WHICH IS NOT GOOD)
         if (!user) {
@@ -74,25 +75,28 @@ export class UserResolver {
             };
         }
 
-        user.password = await argon2.hash(newPassword);
-        await em.persistAndFlush(user); // REGULAR HASHING
+        await User.update(
+            { id: userIdNum },
+            {
+                password: await argon2.hash(newPassword),
+            }
+        );
 
-        await redis.del(key); // DELETING PREVIOUS KEY
+        await redis.del(key);
 
-        // LOGIN USER WITH NEW ID 
+        // log in user after change password
         req.session.userId = user.id;
 
-
-        // RETURN TYPE
         return { user };
     }
 
+
     @Mutation(() => Boolean)
     async forgotPassword(
-        @Arg('email') email: string,
-        @Ctx() { em, redis }: MyContext // REDIS CONTEXT HERE FOR TOKEN SESSION
+        @Arg("email") email: string,
+        @Ctx() { redis }: MyContext // REDIS CONTEXT HERE FOR TOKEN SESSION
     ) {
-        const user = await em.findOne(User, { email })
+        const user = await User.findOne({ where: { email } });
 
         if (!user) {
 
@@ -113,32 +117,24 @@ export class UserResolver {
             `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
         );// Generate a TOKEN FROM THE REDIS AND THAT WILL REFERENCEE TO THE USER WHO WANTS TO CHANGE THE PASS
 
-
-
         return true;
     }
 
 
     @Query(() => User, { nullable: true })
-    async me(
-        @Ctx() { req, em }: MyContext
-
-    ) {
-        console.log(req.session);
-        console.log
-        // You are not logged in1
+    me(@Ctx() { req }: MyContext) {
+        // You are not logged in1f
         if (!req.session.userId) {
             return null
         }
-        const user = await em.findOne(User, { id: req.session!.userId });
-        return user;
+        return User.findOne(req.session.userId);
     }
 
     @Mutation(() => UserResponse)
     // REGISTER FUNCTION
     async register(
-        @Arg('options') options: UsernamePasswordInput,
-        @Ctx() { em, req }: MyContext
+        @Arg("options") options: UsernamePasswordInput,
+        @Ctx() { req }: MyContext
     ): Promise<UserResponse> {
 
 
@@ -148,26 +144,26 @@ export class UserResolver {
 
         const hashedPassword = await argon2.hash(options.password);
 
-        // LINE 85 IS ORM PART
-        //const user = em.create(User, { username: options.username, password: hashedPassword });
 
         let user;
         try {
-            // TypeCasting to EntityManager (QUERYBUILDER)
-            // This is alternative to persistandFlush
-            const result = await (em as EntityManager)
-                .createQueryBuilder(User)
-                .getKnexQuery()
-                .insert(
-                    {
-                        username: options.username,
-                        password: hashedPassword,
-                        created_at: new Date(),
-                        email: options.email,
-                        updated_at: new Date(),
-                    }
-                ).returning("*"); // returning everything!!
-            user = result[0];
+            // INSERTING TO TYPEORM
+
+            // THe short method
+            // User.create({}.save())
+            // Long method using query builder
+            const result = await getConnection()
+                .createQueryBuilder()
+                .insert()
+                .into(User)
+                .values({
+                    username: options.username,
+                    email: options.email,
+                    password: hashedPassword,
+                })
+                .returning("*")
+                .execute(); // returning everything!!
+            user = result.raw[0];
 
             // line 88 is doing the same thing as line below 
             // await em.persistAndFlush(user);
@@ -203,21 +199,21 @@ export class UserResolver {
     @Mutation(() => UserResponse)
     // LOGIN FUNCTION
     async login(
-        @Arg('usernameOrEmail') usernameOrEmail: string,
-        @Arg('password') password: string,
-        @Ctx() { em, req, res }: MyContext
+        @Arg("usernameOrEmail") usernameOrEmail: string,
+        @Arg("password") password: string,
+        @Ctx() { req }: MyContext
     ): Promise<UserResponse> {
-        const user = await em.findOne(User,
-            usernameOrEmail.includes("@") ?
-                { email: usernameOrEmail } :
-                { username: usernameOrEmail }
+        const user = await User.findOne(
+            usernameOrEmail.includes("@")
+                ? { where: { email: usernameOrEmail } }
+                : { where: { username: usernameOrEmail } }
         );
         if (!user) {
             return {
                 errors: [
                     {
                         field: "usernameOrEmail",
-                        message: 'That Username does not exists'
+                        message: "that username doesn't exist",
                     },
                 ],
             };
@@ -225,21 +221,21 @@ export class UserResolver {
         const valid = await argon2.verify(user.password, password);
         if (!valid) {
             return {
-                errors: [{
-                    field: "password",
-                    message: "Incorrect password",
-                },],
-            }
+                errors: [
+                    {
+                        field: "password",
+                        message: "incorrect password",
+                    },
+                ],
+            };
         }
 
-        // SESSION PART req is coming from types.ts as a context
-        req.session!.userId = user.id;
+        req.session.userId = user.id;
 
         return {
             user,
-        }
+        };
     }
-
 
     //Logout
     @Mutation(() => Boolean)

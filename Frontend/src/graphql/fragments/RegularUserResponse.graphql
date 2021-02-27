@@ -1,0 +1,9 @@
+fragment RegularUserResponse on UserResponse {
+  # NESTED FRAGMENTS # This UserResolver matches the "UserResponse Class" on the Backend part See the user.ts in resolvers.
+  errors {
+    ...RegularError
+  }
+  user {
+    ...RegularUser
+  }
+}

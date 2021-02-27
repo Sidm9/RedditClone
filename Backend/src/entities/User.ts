@@ -1,41 +1,41 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, ObjectType } from "type-graphql";
+import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 // CONVERTING TO GRAPHQL TYPEEE
 @ObjectType()
 // NORMAL MIKRORM
 @Entity()
-export class User {
-    @Field() // this is too a graphql Decorator...
-    @PrimaryKey()
+export class User extends BaseEntity {
+    @Field() // type-graphql
+    @PrimaryGeneratedColumn()
     id!: number;
 
-    @Field(() => String) // this is too a graphql Decorator...
-    @Property({ type: "date" })
-    createdAt = new Date();
+    @Field(() => String) // type-graphql
+    @CreateDateColumn({ type: "date" })
+    createdAt = Date; 
 
 
-    @Field(() => String) // this is too a graohql Decorator...
-    @Property({ type: 'date', onUpdate: () => new Date() })
-    updatedAt = new Date();
+    @Field(() => String) // type-graphql
+    @UpdateDateColumn()
+    updatedAt = Date;
 
 
-    @Field() // this is too a graohql Decorator...
+    @Field() // type-graphql
     // NOTICE THE UNIQUE PROPERTY!
-    @Property({ type: 'text', unique: true })
+    @Column({ unique: true })
     username!: string;
 
 
 
-    @Field() // this is too a graohql Decorator...
+    @Field() // type-graphql
     // NOTICE THE UNIQUE PROPERTY!
-    @Property({ type: 'text', unique: true })
+    @Column({ unique: true })
     email!: string;
 
 
 
     // LOOK NO FIELD DECORATOER heRE
     // THIS IS FOR HIDING THE FEILD
-    @Property({ type: 'text' })
+    @Column({ })
     password!: string;
 
 

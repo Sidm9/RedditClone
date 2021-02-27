@@ -1,28 +1,26 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+
+import { PostResolver } from "src/resolveres/posts";
 import { Field, ObjectType } from "type-graphql";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn , BaseEntity } from "typeorm";
 
 // CONVERTING TO GRAPHQL TYPEEE
 @ObjectType()
 // NORMAL MIKRORM
 @Entity()
-export class Post {
-    @Field() // this is too a graphql Decorator...
-    @PrimaryKey()
+export class Post extends BaseEntity {
+    @Field() // Type-graphql
+    @PrimaryGeneratedColumn()
     id!: number;
-
-
-    @Field(() => String) // this is too a graohql Decorator...
-    @Property({ type: "date" })
-    createdAt = new Date();
-
-
-    @Field(() => String) // this is too a graohql Decorator...
-    @Property({ type: 'date', onUpdate: () => new Date() })
-    updatedAt = new Date();
-
-
-    @Field() // this is too a graohql Decorator...
-    @Property({ type: 'text' })
+  
+    @Field(() => String)
+    @CreateDateColumn()
+    createdAt: Date;
+  
+    @Field(() => String)
+    @UpdateDateColumn()
+    updatedAt: Date;
+  
+    @Field()
+    @Column()
     title!: string;
-
 }
