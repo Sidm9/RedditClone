@@ -5,7 +5,7 @@ import { User } from "./entities/User";
 export default async function conn() {
     const conn = await createConnection({
         type: "postgres",
-    host: "localhost",
+        host: "localhost",
         database: 'lireddit2',
         port: 5432,
         username: "postgres",
@@ -14,4 +14,6 @@ export default async function conn() {
         synchronize: true,
         entities: [Post, User]
     });
+
+   //await Post.delete({});
 }

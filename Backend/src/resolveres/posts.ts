@@ -1,7 +1,15 @@
 import { Post } from "../entities/Post";
-import { MyContext } from "src/types";
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from "type-graphql";
+import { MyContext } from "../types";
+import { Arg, Ctx, Field, InputType, Int, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import { isAuth } from "../middleware/isAuth";
 
+@InputType()  
+class PostInput {
+  @Field()
+  title: string
+  @Field()
+  text: string
+}
 @Resolver()
 export class PostResolver {
 
@@ -14,17 +22,24 @@ export class PostResolver {
   }
 
   // THIS POST (19:19) IS NOT AN ARRAY ITS AN OBJECT THIS IS FOR A SINGLE QUERY 
-  @Query(() => Post, { nullable: true })
+  @Query(() => Post, { nullable: true }) 
   post(@Arg("id") id: number): Promise<Post | undefined> {
     return Post.findOne(id);
   }
 
   @Mutation(() => Post)
-  async createPost(@Arg("title") title: string): Promise<Post> {
-    return Post.create({ title }).save();
+  @UseMiddleware(isAuth) // To check wether the user is logged in while creating a post or not
+  async createPost
+    (@Arg("input") input: PostInput,
+      @Ctx() { req }: MyContext): Promise<Post> {
+    return Post.create(
+      {
+        // Without Login Post
+
+        ...input,
+        creatorId: req.session.userId
+      }).save();
   }
-
-
 
   @Mutation(() => Post, { nullable: true })
   async updatePost(
