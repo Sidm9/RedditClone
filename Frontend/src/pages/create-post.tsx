@@ -2,11 +2,12 @@ import { Box, Button } from '@chakra-ui/core';
 import { Form, Formik } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { InputField } from '../components/InputField';
-import { createUrqlClient } from '../utils/createUrqlClient';
-import { useCreatePostMutation, useMeQuery } from '../generated/graphql';
 import { Layout } from '../components/Layout';
+import { useCreatePostMutation } from '../generated/graphql';
+import { createUrqlClient } from '../utils/createUrqlClient';
+import { useIsAuth } from '../utils/useIsAuth';
 
 
 const CreatePost: React.FC<{}> = ({ }) => {
@@ -14,22 +15,13 @@ const CreatePost: React.FC<{}> = ({ }) => {
     // Use CreatePost Mutaion is a hook generated from the 
     // graph.tsx in graphql folder
     // --- all this is generated from graphql-code-generator ---
-    const [{ data, fetching }] = useMeQuery();
     const [, createPost] = useCreatePostMutation();
 
     // For routing to other pages hook
     const router = useRouter();
-
-
-    // IF NOT LOGGED IN THEN REDIRECT TO LOGIN PAGE
-    useEffect(() => {
-        if (!data?.me) {
-            router.replace("/login")
-        }
-    }, [fetching, data, router])
-
-
-
+    
+    useIsAuth();
+    
     return (
         <Layout variant='small'>
             <Formik

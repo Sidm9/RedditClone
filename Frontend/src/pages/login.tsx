@@ -18,6 +18,7 @@ const Login: React.FC<{}> = ({ }) => {
 
     // For routing to other pages hook
     const router = useRouter();
+    
     return (
         <Wrapper variant="small">
             <Formik
@@ -37,8 +38,19 @@ const Login: React.FC<{}> = ({ }) => {
                     else if (response.data?.login.user) {
                         // WORKED
 
-                        console.log(response.data);
-                        router.push("/");
+                        // console.log(response.data);
+
+                        if (typeof router.query.next === 'string') {
+
+                            // this query.next was the object reponse when console logged 
+                            // router (which originally came rom the create-post not logged in)
+
+                            router.push(router.query.next);
+                        }
+                        else {
+                            // WORKED
+                            router.push("/");
+                        }
                     }
                 }}
             >
