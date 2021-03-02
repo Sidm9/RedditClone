@@ -1,0 +1,11 @@
+mutation createPost($input: PostInput!) {
+  # Post input is coming from the postInput class in post resolver
+  createPost(input: $input) {
+    id
+    createdAt
+    title
+    text
+    points
+    updatedAt
+  }
+}

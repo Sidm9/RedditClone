@@ -1,36 +1,48 @@
-import { Box, Button, InputProps, Textarea } from '@chakra-ui/core';
+import { Box, Button } from '@chakra-ui/core';
 import { Form, Formik } from 'formik';
 import { withUrqlClient } from 'next-urql';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { InputField } from '../components/InputField';
-import Wrapper from '../components/Wrapper';
 import { createUrqlClient } from '../utils/createUrqlClient';
-
-import { toErrorMap } from '../utils/toErrorMap';
+import { useCreatePostMutation, useMeQuery } from '../generated/graphql';
+import { Layout } from '../components/Layout';
 
 
 const CreatePost: React.FC<{}> = ({ }) => {
+
     // Use CreatePost Mutaion is a hook generated from the 
     // graph.tsx in graphql folder
     // --- all this is generated from graphql-code-generator ---
-    // const [, createPost] = useCreatePostMutation();
+    const [{ data, fetching }] = useMeQuery();
+    const [, createPost] = useCreatePostMutation();
 
     // For routing to other pages hook
-
-
     const router = useRouter();
+
+
+    // IF NOT LOGGED IN THEN REDIRECT TO LOGIN PAGE
+    useEffect(() => {
+        if (!data?.me) {
+            router.replace("/login")
+        }
+    }, [fetching, data, router])
+
+
+
     return (
-        <Wrapper variant="small">
+        <Layout variant='small'>
             <Formik
                 initialValues={{ title: "", text: "" }}
                 onSubmit={async (values) => {
                     console.log(values)
 
-                    // const { error } = await createPost({ input: values });
-                    // if (!error) {
-                    //     router.push("/");
-                    // }
+                    await createPost({ input: values });
+                    router.push("/");
+                    const { error } = await createPost({ input: values });
+                    if (error) {
+                        console.log("error :", error);
+                    }
 
 
                 }}
@@ -65,7 +77,7 @@ const CreatePost: React.FC<{}> = ({ }) => {
                     </Form>
                 )}
             </Formik>
-        </Wrapper>
+        </Layout>
     );
 };
 
