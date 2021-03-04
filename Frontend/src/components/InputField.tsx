@@ -11,30 +11,26 @@ type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
     textarea?: boolean;
 };
 
+// '' => false
+// 'error message stuff' => true
 
-export const InputField: React.FC<InputFieldProps> = ({ label, textarea, size: _, ...props }) => {
-
-    // If textarea is there textarea will be injected
+export const InputField: React.FC<InputFieldProps> = ({
+    label,
+    textarea,
+    size: _,
+    ...props
+}) => {
     let InputOrTextarea = Input;
     if (textarea) {
         InputOrTextarea = Textarea;
     }
-
-
-
     const [field, { error }] = useField(props);
-
     return (
-        // !! is typecasting to a boolean
         <FormControl isInvalid={!!error}>
-
             <FormLabel htmlFor={field.name}>{label}</FormLabel>
             <InputOrTextarea {...field} {...props} id={field.name} />
-
-
-
             {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
         </FormControl>
-    )
-}
+    );
+};
 

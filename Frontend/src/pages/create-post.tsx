@@ -15,61 +15,48 @@ const CreatePost: React.FC<{}> = ({ }) => {
     // Use CreatePost Mutaion is a hook generated from the 
     // graph.tsx in graphql folder
     // --- all this is generated from graphql-code-generator ---
-    const [, createPost] = useCreatePostMutation();
+   
 
     // For routing to other pages hook
     const router = useRouter();
     
     useIsAuth();
     
+    const [, createPost] = useCreatePostMutation();
     return (
-        <Layout variant='small'>
-            <Formik
-                initialValues={{ title: "", text: "" }}
-                onSubmit={async (values) => {
-                    console.log(values)
-
-                    await createPost({ input: values });
-                    router.push("/");
-                    const { error } = await createPost({ input: values });
-                    if (error) {
-                        console.log("error :", error);
-                    }
-
-
-                }}
-            >
-                {({ isSubmitting }) => (
-                    <Form>
-                        <InputField
-                            name="title"
-                            placeholder="Title"
-                            label="Title"
-                        />
-
-                        <Box mt={4} />
-
-                        <InputField
-                            textarea
-                            name="text"
-                            placeholder="text..."
-                            label="Body"
-                        />
-
-
-
-                        <Button
-                            mt={4}
-                            type="submit"
-                            isLoading={isSubmitting}
-                            variantColor="teal"
-                        >
-                            Create Post
-            </Button>
-                    </Form>
-                )}
-            </Formik>
-        </Layout>
+      <Layout variant="small">
+        <Formik
+          initialValues={{ title: "", text: "" }}
+          onSubmit={async (values) => {
+            const { error } = await createPost({ input: values });
+            if (!error) {
+              router.push("/");
+            }
+          }}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <InputField name="title" placeholder="title" label="Title" />
+              <Box mt={4}>
+                <InputField
+                  textarea
+                  name="text"
+                  placeholder="text..."
+                  label="Body"
+                />
+              </Box>
+              <Button
+                mt={4}
+                type="submit"
+                isLoading={isSubmitting}
+                variantColor="teal"
+              >
+                create post
+              </Button>
+            </Form>
+          )}
+        </Formik>
+      </Layout>
     );
 };
 
