@@ -19,26 +19,34 @@ export class PostResolver {
   //  @ctx() IS THE DECORATOR FOR CONTEXT
 
   async posts(
-    @Arg('limit') limit: number,
+    @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String /* When setting nullable we need to set explict types */
       , { nullable: true }) cursor: string | null
   ): Promise<Post[]> {
 
+    // Maximum Posts limit.
     const realLimit = Math.min(50, limit);
-    return (
-      // TYPEORM QUERY BUILDER
-      getConnection()
-        .getRepository(Post)
-        .createQueryBuilder("p") // ALIAS
-        // .where("user.id = :id", { id: 1 })
-        .orderBy('"createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
-        .take(realLimit) // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO
-        .getMany()
 
-    );
+    // TYPEORM QUERY BUILDER
+   
+    const qb = getConnection()
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy('"createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
+      .take(realLimit) // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO
+      .take(realLimit);
 
-    // return Post.find(); // Simple method of  fetching all posts (BEFORE PAGINATION)
+    if (cursor) {
+      qb.where('"createdAt" < :cursor', {
+        cursor: new Date(parseInt(cursor)),
+      });
+    }
+
+    return qb.getMany();
   }
+
+  // return Post.find(); // Simple method of  fetching all posts (BEFORE PAGINATION)
+
 
   // THIS POST (19:19) IS NOT AN ARRAY ITS AN OBJECT THIS IS FOR A SINGLE QUERY 
   @Query(() => Post, { nullable: true })

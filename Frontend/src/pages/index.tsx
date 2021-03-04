@@ -7,20 +7,22 @@ import React from "react";
 import { Link } from "@chakra-ui/core";
 
 const Index = () => {
-  const [{ data }] = usePostsQuery();
+  const [{ data }] = usePostsQuery({
+    variables: {
+      limit: 10,
+    },
+  });
   return (
     <Layout>
-      <NextLink href="create-post">
-        <Link>
-          Create Post
-             </Link>
+      <NextLink href="/create-post">
+        <Link>create post</Link>
       </NextLink>
       <br />
       {!data ? (
         <div>loading...</div>
       ) : (
-          data.posts.map((p) => <div key={p.id}>{p.title}</div>)
-        )}
+        data.posts.map((p) => <div key={p.id}>{p.title}</div>)
+      )}
     </Layout>
   );
 };
