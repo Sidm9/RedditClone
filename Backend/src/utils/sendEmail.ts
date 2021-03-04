@@ -34,4 +34,4 @@ export async function sendEmail(to: string, html: string) {
     // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
-sendEmail('to', 'html').catch(console.error);
+// sendEmail('to', 'html').catch(console.error);
