@@ -11,7 +11,7 @@ export const useIsAuth = () => {
     const router = useRouter(); 
     console.log(router)
     useEffect(() => {
-        if (!data?.me) {
+        if (!fetching && !data?.me) {
             router.replace("/login?next= " + router.pathname) // After login go back to create-post
         }
     }, [fetching, data, router])

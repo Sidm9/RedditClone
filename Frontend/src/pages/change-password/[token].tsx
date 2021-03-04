@@ -11,7 +11,7 @@ import { useChangePasswordMutation } from '../../generated/graphql';
 import { createUrqlClient } from '../../utils/createUrqlClient';
 import { toErrorMap } from '../../utils/toErrorMap';
 
-const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
+const ChangePassword: NextPage<{ token: string }> = () => {
 
     const router = useRouter();
 
@@ -31,7 +31,11 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                         // THIS IS FROM THE NEW MANNER OF GRAPQL QUERY WE ARE USING IT
                         // SLIGHTLY DIFFERENT FROM THE REGISTER.GRAPQHQL
 
-                        const response = await changePassword({ newPassword: values.newPassword, token });
+                        const response = await changePassword({
+                            newPassword: values.newPassword,
+                            token:
+                              typeof router.query.token === "string" ? router.query.token : "",
+                          }); // Token can come from the router tooo..... if " " then ERRORR!
                         if (response.data?.changePassword.errors) {
                             const errorMap = toErrorMap(response.data.changePassword.errors)
                             // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
@@ -84,15 +88,6 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
             </Wrapper>
         </>
     )
-}
-
-
-ChangePassword.getInitialProps = ({ query }) => { // Get Any Query Parameters that are passed into this function i.e Get "url" of token in here
-
-    return {
-        token: query.token as string // L4
-    }
-
 }
 
 export default withUrqlClient(createUrqlClient)(ChangePassword);

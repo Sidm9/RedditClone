@@ -2,8 +2,9 @@ import { Post } from "../entities/Post";
 import { MyContext } from "../types";
 import { Arg, Ctx, Field, InputType, Int, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
-@InputType()  
+@InputType()
 class PostInput {
   @Field()
   title: string
@@ -15,14 +16,32 @@ export class PostResolver {
 
 
   @Query(() => [Post])
-  // THE CONTEXT PART IN THE INDEX.JS i.e "em"
-  // AND @ctx() IS THE DECORATOR FOR CONTEXT
-  posts(): Promise<Post[]> {
-    return Post.find();
+  //  @ctx() IS THE DECORATOR FOR CONTEXT
+
+  async posts(
+    @Arg('limit') limit: number,
+    @Arg('cursor', () => String /* When setting nullable we need to set explict types */
+      , { nullable: true }) cursor: string | null
+  ): Promise<Post[]> {
+
+    const realLimit = Math.min(50, limit);
+    return (
+      // TYPEORM QUERY BUILDER
+      getConnection()
+        .getRepository(Post)
+        .createQueryBuilder("p") // ALIAS
+        // .where("user.id = :id", { id: 1 })
+        .orderBy('"createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
+        .take(realLimit) // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO
+        .getMany()
+
+    );
+
+    // return Post.find(); // Simple method of  fetching all posts (BEFORE PAGINATION)
   }
 
   // THIS POST (19:19) IS NOT AN ARRAY ITS AN OBJECT THIS IS FOR A SINGLE QUERY 
-  @Query(() => Post, { nullable: true }) 
+  @Query(() => Post, { nullable: true })
   post(@Arg("id") id: number): Promise<Post | undefined> {
     return Post.findOne(id);
   }
