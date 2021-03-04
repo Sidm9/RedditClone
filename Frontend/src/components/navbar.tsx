@@ -24,10 +24,10 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
         body = (
             <>
                 <NextLink href="login">
-                    <Link mr={2} color="white">Login</Link>
+                    <Link mr={2}>Login</Link>
                 </NextLink>
                 <NextLink href="register">
-                    <Link mr={2} color="white">Register</Link>
+                    <Link mr={2}>Register</Link>
                 </NextLink>
             </>
         )
@@ -45,6 +45,7 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
                             logout();
                         }}
                     isLoading={logoutFetching}
+                   
                 >
                     Logout
                 </Button>
@@ -54,10 +55,10 @@ export const NavBar: React.FC<NavBarProps> = ({ }) => {
     }
 
     return (
-        <Flex position="sticky" top={0} zIndex={1000} bg='crimson' p={4} ml={'auto'}>
+        <Flex position="-webkit-sticky" top={0} zIndex={1000} bg='crimson' p={4} ml={'auto'}>
 
 
-            <Box ml={'auto'}>
+            <Box ml={'auto'} color="white">
 
                 {body}
 

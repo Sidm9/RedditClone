@@ -1,6 +1,6 @@
 import { Post } from "../entities/Post";
 import { MyContext } from "../types";
-import { Arg, Ctx, Field, InputType, Int, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 
@@ -11,13 +11,20 @@ class PostInput {
   @Field()
   text: string
 }
-@Resolver()
+@Resolver(Post) // Post is what we are resolving!!
 export class PostResolver {
 
 
+  @FieldResolver(() => String)
+    // This is used to shorten the data (The TEXT part of post) 
+  textSnippet(@Root() root: Post) {
+    {
+      return root.text.slice(0, 50);
+    }
+  }
+
   @Query(() => [Post])
   //  @ctx() IS THE DECORATOR FOR CONTEXT
-
   async posts(
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String /* When setting nullable we need to set explict types */
@@ -28,7 +35,7 @@ export class PostResolver {
     const realLimit = Math.min(50, limit);
 
     // TYPEORM QUERY BUILDER
-   
+
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder("p")

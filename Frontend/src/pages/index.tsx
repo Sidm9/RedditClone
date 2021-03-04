@@ -4,21 +4,28 @@ import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import React from "react";
-import { Box, Heading, Link, Stack, Text } from "@chakra-ui/core";
+import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
 
 const Index = () => {
-  const [{ data }] = usePostsQuery({
+  const [{ data, fetching }] = usePostsQuery({
     variables: {
       limit: 10,
     },
   });
   return (
+
     <Layout>
-      <NextLink href="create-post">
-        <Link>
-          Create Post
-             </Link>
-      </NextLink>
+
+
+      <Flex align="center">
+        <Heading>LiReddit</Heading>
+        <NextLink href="create-post">
+          <Link ml="auto">
+            Create Post
+          </Link>
+        </NextLink>
+      </Flex>
+
       <br />
       {!data ? (
         <div>loading...</div>
@@ -32,15 +39,24 @@ const Index = () => {
                 <Heading fontSize="xl">{p.title}</Heading>
 
                 <div key={p.id}>{p.title}</div>
-                <Text mt={4}>{p.text}</Text>
+
+                <Text mt={4}>{p.textSnippet}...</Text>
 
 
               </Box>
-
             )}
-
           </Stack>
+
         )}
+
+      {data ?
+
+        (<Flex>
+          <Button isLoading={fetching} m="auto" my={8}>Load More</Button>
+        </Flex>)
+
+        : null
+      }
     </Layout>
   );
 };
