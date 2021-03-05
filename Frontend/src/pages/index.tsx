@@ -12,6 +12,12 @@ const Index = () => {
       limit: 10,
     },
   });
+
+  if (!fetching && !data) {
+    return <div>
+      Somethings is definately not right
+    </div>
+  }
   return (
 
     <Layout>
@@ -30,24 +36,24 @@ const Index = () => {
       {!data ? (
         <div>loading...</div>
       ) : (
-          <Stack spacing={8}>
+        <Stack spacing={8}>
 
-            {data.posts.map((p) =>
+          {data!.posts.map((p) =>
 
-              <Box key={p.id} p={5} shadow="md" borderWidth="1px">
+            <Box key={p.id} p={5} shadow="md" borderWidth="1px">
 
-                <Heading fontSize="xl">{p.title}</Heading>
+              <Heading fontSize="xl">{p.title}</Heading>
 
-                <div key={p.id}>{p.title}</div>
+              <div key={p.id}>{p.title}</div>
 
-                <Text mt={4}>{p.textSnippet}...</Text>
+              <Text mt={4}>{p.textSnippet}...</Text>
 
 
-              </Box>
-            )}
-          </Stack>
+            </Box>
+          )}
+        </Stack>
 
-        )}
+      )}
 
       {data ?
 
