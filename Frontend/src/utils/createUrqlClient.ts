@@ -1,9 +1,20 @@
-import { dedupExchange, fetchExchange } from "urql";
-import { cacheExchange } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import {
+  dedupExchange,
+  Exchange,
+  fetchExchange,
+  stringifyVariables,
+} from "urql";
+import { pipe, tap } from "wonka";
+import {
+  LoginMutation,
+  LogoutMutation,
+  MeDocument,
+  MeQuery,
+  RegisterMutation,
+} from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { LogoutMutation, MeQuery, MeDocument, LoginMutation, RegisterMutation } from "../generated/graphql";
-import { pipe, tap } from 'wonka'
-import Router from "next/link"
+import Router from "next/router";
 
 
 
@@ -37,6 +48,8 @@ const cursorPagination = (): Resolver => {
     const isItInTheCache = cache.resolveFieldByKey(entityKey, fieldKey);
     info.partial = !isItInTheCache;
     const results: string[] = [];
+
+
     fieldInfos.forEach((fi) => {
       const data = cache.resolveFieldByKey(entityKey, fi.fieldKey) as string[];
       results.push(...data);

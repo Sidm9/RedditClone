@@ -14,6 +14,7 @@ class PostInput {
 @Resolver(Post) // Post is what we are resolving!!
 export class PostResolver {
 
+  
 
   @FieldResolver(() => String)
     // This is used to shorten the data (The TEXT part of post) 
