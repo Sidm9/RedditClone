@@ -6,7 +6,7 @@ import { User } from "./User";
 
 // CONVERTING TO GRAPHQL TYPEEE
 @ObjectType()
-// NORMAL MIKRORM
+// NORMAL TYPEORM
 @Entity()
 export class Post extends BaseEntity {
     @Field() // Type-graphql

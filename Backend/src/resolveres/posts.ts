@@ -1,48 +1,58 @@
 import { Post } from "../entities/Post";
 import { MyContext } from "../types";
-import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, Query, Resolver, Root, UseMiddleware } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 
 @InputType()
 class PostInput {
   @Field()
-  title: string
+  title: string;
   @Field()
-  text: string
+  text: string;
 }
+
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+  @Field()
+  hasMore: boolean;
+}
+
+
 @Resolver(Post) // Post is what we are resolving!!
 export class PostResolver {
 
-  
-
   @FieldResolver(() => String)
-    // This is used to shorten the data (The TEXT part of post) 
-  textSnippet(@Root() root: Post) {
+  // This is used to shorten the data (The TEXT part of post) 
+  textSnippet(@Root() post: Post) {
     {
-      return root.text.slice(0, 50);
+      return post.text.slice(0, 50);
     }
   }
 
-  @Query(() => [Post])
+  @Query(() => PaginatedPosts) // THE CLASSSSS
   //  @ctx() IS THE DECORATOR FOR CONTEXT
   async posts(
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String /* When setting nullable we need to set explict types */
       , { nullable: true }) cursor: string | null
-  ): Promise<Post[]> {
+  ): Promise<PaginatedPosts> {
 
     // Maximum Posts limit.
-    const realLimit = Math.min(50, limit);
+    const realLimit = Math.min(500, limit);
+
+    /* 20 Post inital + 1 as extra so if 100 posts and 101 fetches which 
+     Will be false */
+    const realLimitPlusOne = realLimit + 1
 
     // TYPEORM QUERY BUILDER
-
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder("p")
       .orderBy('"createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
-      .take(realLimit) // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO
-      .take(realLimit);
+      .take(realLimitPlusOne); // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO (CHECK QUERYBUILDER DOCS)
 
     if (cursor) {
       qb.where('"createdAt" < :cursor', {
@@ -50,7 +60,12 @@ export class PostResolver {
       });
     }
 
-    return qb.getMany();
+    const posts = await qb.getMany();
+
+    return {
+      posts: posts.slice(0, realLimit),
+      hasMore: posts.length === realLimitPlusOne,
+    };
   }
 
   // return Post.find(); // Simple method of  fetching all posts (BEFORE PAGINATION)
