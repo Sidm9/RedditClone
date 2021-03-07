@@ -41,7 +41,7 @@ export class PostResolver {
   ): Promise<PaginatedPosts> {
 
     // Maximum Posts limit.
-    const realLimit = Math.min(500, limit);
+    const realLimit = Math.min(50, limit);
 
     /* 20 Post inital + 1 as extra so if 100 posts and 101 fetches which 
      Will be false */
