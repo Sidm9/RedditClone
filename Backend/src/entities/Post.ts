@@ -45,7 +45,8 @@ export class Post extends BaseEntity {
     // @TypeOrm
     // Many Posts can be uploaded by 1 user
     // In short a Foriegn Key
-    @ManyToOne(type => User, (user) => user.posts)
+    @Field()
+    @ManyToOne(() => User, (user) => user.posts)
     creator: User;
 
 }

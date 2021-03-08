@@ -1,7 +1,7 @@
 import argon2 from "argon2";
 import { User } from "../entities/User";
 import { MyContext } from "src/types";
-import { Arg, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
@@ -27,8 +27,25 @@ class UserResponse {
     user?: User;
 }
 
-@Resolver()
+@Resolver(User)  // I think (User) only adds for when the @FieldResolver is used don't know havent read the docs for this 
 export class UserResolver {
+
+
+    /* Basically this field resolver acts some sort of middleware that 
+    execeutes when it is returned */
+
+    @FieldResolver(() => String)
+    // IF POSTED BY OP THEN EMAIL WILL BE SHOWN OTHERWISE NULL WILL BE RETURNED
+    email(
+        @Root() user: User,
+        @Ctx() { req }: MyContext) {
+        // this is the current user and its ok to show them their own email
+        if (req.session.userId === user.id) {
+            return user.email;
+        }
+        // current user wants to see someone elses email
+        return "";
+    }
 
     @Mutation(() => UserResponse)
     async changePassword(

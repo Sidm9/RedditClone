@@ -27,7 +27,7 @@ const Index = () => {
       <Flex align="center">
         <Heading>LiReddit</Heading>
         <NextLink href="/create-post">
-          <Link ml="auto">create post</Link>
+          <Link ml="auto">Create Post</Link>
         </NextLink>
       </Flex>
       <br />
@@ -56,7 +56,7 @@ const Index = () => {
             m="auto"
             my={8}
           >
-            load more
+            Load More
           </Button>
         </Flex>
       ) : null}

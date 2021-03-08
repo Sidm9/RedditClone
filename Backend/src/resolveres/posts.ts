@@ -47,20 +47,58 @@ export class PostResolver {
      Will be false */
     const realLimitPlusOne = realLimit + 1
 
-    // TYPEORM QUERY BUILDER
-    const qb = getConnection()
-      .getRepository(Post)
-      .createQueryBuilder("p")
-      .orderBy('"createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
-      .take(realLimitPlusOne); // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO (CHECK QUERYBUILDER DOCS)
+    const replacements: any[] = [realLimitPlusOne];
 
     if (cursor) {
-      qb.where('"createdAt" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
+      replacements.push(new Date(parseInt(cursor)));
     }
 
-    const posts = await qb.getMany();
+
+    //  INNER JOINNING THE USER <--> POST
+    //  json_build_object to return a json type of user
+
+    const posts = await getConnection().query(
+      `
+    select p.*,
+    json_build_object(    
+      'id', u.id,
+      'username', u.username,
+      'email', u.email,
+      'createdAt', u."createdAt",
+      'updatedAt', u."updatedAt"
+      ) creator
+    from post p
+    inner join public.user u on u.id = p."creatorId"
+    ${cursor ? `where p."createdAt" < $2` : ""}
+    order by p."createdAt" DESC
+    limit $1
+    `,
+      replacements
+    );
+
+    // Dont know what is going wrong with typeorm so back to raw queries
+
+    // TYPEORM QUERY BUILDER
+    // const qb = getConnection()
+    //   .getRepository(Post)
+    //   .createQueryBuilder("p")
+    //   .innerJoinAndSelect(
+    //     "p.creator",
+    //     "creator",
+    //     `u.id = p."creatorid"`
+    // )
+    // Need to specify where it the createdAt is at *Post* or at *User*
+    // .orderBy('p."createdAt"', "DESC") // Wrapped in single quotes so that it sends in double quotes (INCLUDED)!
+
+    // .take(realLimitPlusOne); // FOR PAGINATION TAKE IS PREFFEERD ELSE LIMIT() CAN BE USED TOO (CHECK QUERYBUILDER DOCS)
+
+    // if (cursor) {
+    //   qb.where('"createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   });
+    // }
+
+    // const posts = await qb.getMany();
 
     return {
       posts: posts.slice(0, realLimit),
