@@ -1,7 +1,8 @@
 
 import { PostResolver } from "src/resolveres/posts";
 import { Field, ObjectType } from "type-graphql";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, BaseEntity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, BaseEntity, ManyToOne, OneToMany } from "typeorm";
+import { Updoot } from "./Updoot";
 import { User } from "./User";
 
 // CONVERTING TO GRAPHQL TYPEEE
@@ -29,13 +30,15 @@ export class Post extends BaseEntity {
     @Field()
     @Column()
     text!: string;
+  
+    @OneToMany(() => Updoot, (updoot) => updoot.post)
+    updoot: Updoot[];
 
 
     // Updoots
     @Field()
     @Column({ type: "int", default: 0 })
-    points!: string;
-
+    points!: string;    
 
     // Id of that post
     @Field()
@@ -48,5 +51,5 @@ export class Post extends BaseEntity {
     @Field()
     @ManyToOne(() => User, (user) => user.posts)
     creator: User;
-
+    
 }

@@ -1,6 +1,7 @@
 import { Field, ObjectType } from "type-graphql";
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Post } from "./Post";
+import { Updoot } from "./Updoot";
 // CONVERTING TO GRAPHQL TYPEEE
 @ObjectType()
 // NORMAL MIKRORM
@@ -25,19 +26,22 @@ export class User extends BaseEntity {
 
     // LOOK NO FIELD DECORATOER heRE
     // THIS IS FOR HIDING THE FEILD
-    @Column({ })
+    @Column({})
     password!: string;
 
 
-    // TypeORM
-    // A User Can have Many Posts
-    // creator is the FOREIGN KEY 
-    @OneToMany(type => Post , post => post.creator)
-    posts : Post[] // Array of Posts
+
+    @OneToMany(() => Post, (post) => post.creator)
+    posts: Post[];
+
+    @OneToMany(() => Updoot, (updoot) => updoot.user)
+    updoots: Updoot[]
+
+
 
     @Field(() => String) // type-graphql
     @CreateDateColumn({ type: "date" })
-    createdAt = Date; 
+    createdAt = Date;
 
 
     @Field(() => String) // type-graphql
