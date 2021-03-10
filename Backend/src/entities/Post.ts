@@ -30,20 +30,6 @@ export class Post extends BaseEntity {
     @Field()
     @Column()
     text!: string;
-  
-    @OneToMany(() => Updoot, (updoot) => updoot.post)
-    updoot: Updoot[];
-
-
-    // Updoots
-    @Field()
-    @Column({ type: "int", default: 0 })
-    points!: string;    
-
-    // Id of that post
-    @Field()
-    @Column()
-    creatorId: number;
 
     // @TypeOrm
     // Many Posts can be uploaded by 1 user
@@ -51,5 +37,20 @@ export class Post extends BaseEntity {
     @Field()
     @ManyToOne(() => User, (user) => user.posts)
     creator: User;
+
+    @OneToMany(() => Updoot, (updoot) => updoot.post)
+    updoots: Updoot[];
+
+    // Updoots
+    @Field()
+    @Column({ type: "int", default: 0 })
+    points!: string;
+
+    // Id of that post
+    @Field()
+    @Column()
+    creatorId: number;
+
     
+
 }

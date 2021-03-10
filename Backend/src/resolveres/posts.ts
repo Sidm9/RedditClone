@@ -3,6 +3,7 @@ import { MyContext } from "../types";
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Updoot } from "src/entities/Updoot";
 
 @InputType()
 class PostInput {
@@ -31,6 +32,30 @@ export class PostResolver {
       return post.text.slice(0, 50);
     }
   }
+
+
+  // Only for the updoot part
+  @Mutation(() => Boolean)
+  async vote(
+    @Arg('postId', () => Int) postId: number,
+    @Arg('value', () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpoot = value !== -1
+    const realValue = isUpoot ? 1 : -1;
+    const { userId } = req.session
+    Updoot.insert({
+      userId,
+      postId,
+      value: realValue
+    });
+    getConnection().query(
+      ` update post p 
+      set points = points + $1
+      where p.id = $2 `
+      , [realValue, postId])
+  }
+
 
   @Query(() => PaginatedPosts) // THE CLASSSSS
   //  @ctx() IS THE DECORATOR FOR CONTEXT
