@@ -3,7 +3,7 @@ import { MyContext } from "../types";
 import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Query, Resolver, Root, UseMiddleware } from "type-graphql";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
-import { Updoot } from "src/entities/Updoot";
+import { Updoot } from "../entities/Updoot";
 
 @InputType()
 class PostInput {
@@ -51,9 +51,11 @@ export class PostResolver {
     });
     getConnection().query(
       ` update post p 
-      set points = points + $1
+      set p.points = points + $1
       where p.id = $2 `
       , [realValue, postId])
+    
+    return true;
   }
 
 
