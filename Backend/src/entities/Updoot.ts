@@ -9,6 +9,7 @@ import { Post } from "./Post";
 // user -> join table <- posts
 // user -> updoot <- posts
 
+// Dont need Type graphql on thiss  
 @Entity()
 export class Updoot extends BaseEntity {
   @Column({ type: "int" })
@@ -25,4 +26,4 @@ export class Updoot extends BaseEntity {
 
   @ManyToOne(() => Post, (post) => post.updoots)
   post: Post;
-}
+} 

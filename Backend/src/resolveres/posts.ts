@@ -34,7 +34,7 @@ export class PostResolver {
   }
 
 
-  // Only for the updoot part
+  // Only for the updoot part didnt create an seperate File for this
   @Mutation(() => Boolean)
   async vote(
     @Arg('postId', () => Int) postId: number,
@@ -42,19 +42,24 @@ export class PostResolver {
     @Ctx() { req }: MyContext
   ) {
     const isUpoot = value !== -1
-    const realValue = isUpoot ? 1 : -1;
+    const realValue = isUpoot ? 1 : -1
     const { userId } = req.session
-    Updoot.insert({
-      userId,
-      postId,
-      value: realValue
-    });
-    getConnection().query(
-      ` update post p 
-      set p.points = points + $1
-      where p.id = $2 `
-      , [realValue, postId])
-    
+    // Updoot.insert({
+    //   userId,
+    //   postId,
+    //   value: realValue
+    // });
+    await getConnection().query(
+      `
+    START TRANSACTION;
+    insert into updoot ("userId", "postId", value)
+    values (${userId},${postId},${realValue});
+    update post
+    set points = points + ${realValue}
+    where id = ${postId};
+    COMMIT;
+    `
+    );
     return true;
   }
 
@@ -83,11 +88,11 @@ export class PostResolver {
 
     //  INNER JOINNING THE USER <--> POST
     //  json_build_object to return a json type of user
-
+    
     const posts = await getConnection().query(
       `
     select p.*,
-    json_build_object(    
+    json_build_object(
       'id', u.id,
       'username', u.username,
       'email', u.email,
@@ -102,7 +107,6 @@ export class PostResolver {
     `,
       replacements
     );
-
     // Dont know what is going wrong with typeorm so back to raw queries
 
     // TYPEORM QUERY BUILDER
