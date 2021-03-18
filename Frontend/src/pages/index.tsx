@@ -40,11 +40,6 @@ const Index = () => {
             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
               <UpdootSection post={p} />
 
-              <Flex direction="column" justifyContent="center" alignItems='center' marginRight={4}>
-                <IconButton icon="chevron-up" aria-label="upvote"/>
-                {p.points}
-                <IconButton icon="chevron-down" aria-label="downvote"/>
-              </Flex>
               <Box>
                 <Heading fontSize="xl">{p.title}</Heading>
                 <Text>posted by {p.creator.username}</Text>
