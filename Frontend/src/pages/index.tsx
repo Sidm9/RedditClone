@@ -28,7 +28,7 @@ const Index = () => {
       <Flex align="center">
         <Heading>LiReddit</Heading>
         <NextLink href="/create-post">
-          <Link ml="auto">Create Post</Link>
+          <Link ml="auto">create post</Link>
         </NextLink>
       </Flex>
       <br />
@@ -39,7 +39,6 @@ const Index = () => {
           {data!.posts.posts.map((p) => (
             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
               <UpdootSection post={p} />
-
               <Box>
                 <Heading fontSize="xl">{p.title}</Heading>
                 <Text>posted by {p.creator.username}</Text>
@@ -62,7 +61,7 @@ const Index = () => {
             m="auto"
             my={8}
           >
-            Load More
+            load more
           </Button>
         </Flex>
       ) : null}

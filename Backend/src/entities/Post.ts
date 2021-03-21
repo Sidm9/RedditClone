@@ -10,31 +10,31 @@ import { User } from "./User";
 // NORMAL TYPEORM
 @Entity()
 export class Post extends BaseEntity {
-    @Field() // Type-graphql
+    @Field()
     @PrimaryGeneratedColumn()
     id!: number;
-
-    @Field(() => String)
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @Field(() => String)
-    @UpdateDateColumn()
-    updatedAt: Date;
 
     @Field()
     @Column()
     title!: string;
 
-
     @Field()
     @Column()
     text!: string;
 
+    @Field()
+    @Column({ type: "int", default: 0 })
+    points!: number;
+
     @Field(() => Int, { nullable: true })
     voteStatus: number | null;  // If the post has +1 vote status then i personally have voted on it if -1 then i have downvoted on it else null
 
-    
+
+    @Field()
+    @Column()
+    creatorId: number;
+
+
     // @TypeOrm
     // Many Posts can be uploaded by 1 user
     // In short a Foriegn Key
@@ -45,15 +45,13 @@ export class Post extends BaseEntity {
     @OneToMany(() => Updoot, (updoot) => updoot.post)
     updoots: Updoot[];
 
-    // Updoots
-    @Field()
-    @Column({ type: "int", default: 0 })
-    points!: string;
+    @Field(() => String)
+    @CreateDateColumn()
+    createdAt: Date;
 
-    // Id of that post
-    @Field()
-    @Column()
-    creatorId: number;
+    @Field(() => String)
+    @UpdateDateColumn()
+    updatedAt: Date;
 
 
 

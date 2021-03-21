@@ -36,6 +36,7 @@ export class PostResolver {
 
   // Only for the updoot part didnt create an seperate File for this
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async vote(
     @Arg("postId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
@@ -53,9 +54,9 @@ export class PostResolver {
       await getConnection().transaction(async (tm) => {
         await tm.query(
           `
-        update updoot
-        set value = $1
-        where "postId" = $2 and "userId" = $3
+    update updoot
+    set value = $1
+    where "postId" = $2 and "userId" = $3
         `,
           [realValue, postId, userId]
         );

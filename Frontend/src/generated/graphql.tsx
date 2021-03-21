@@ -42,14 +42,14 @@ export type PaginatedPosts = {
 export type Post = {
   __typename?: 'Post';
   id: Scalars['Float'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
   title: Scalars['String'];
   text: Scalars['String'];
+  points: Scalars['Float'];
   voteStatus?: Maybe<Scalars['Int']>;
-  creator: User;
-  points: Scalars['String'];
   creatorId: Scalars['Float'];
+  creator: User;
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
   textSnippet: Scalars['String'];
 };
 
