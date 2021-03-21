@@ -1,6 +1,6 @@
 
 import { PostResolver } from "src/resolveres/posts";
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, BaseEntity, ManyToOne, OneToMany } from "typeorm";
 import { Updoot } from "./Updoot";
 import { User } from "./User";
@@ -31,6 +31,10 @@ export class Post extends BaseEntity {
     @Column()
     text!: string;
 
+    @Field(() => Int, { nullable: true })
+    voteStatus: number | null;  // If the post has +1 vote status then i personally have voted on it if -1 then i have downvoted on it else null
+
+    
     // @TypeOrm
     // Many Posts can be uploaded by 1 user
     // In short a Foriegn Key
@@ -51,6 +55,6 @@ export class Post extends BaseEntity {
     @Column()
     creatorId: number;
 
-    
+
 
 }

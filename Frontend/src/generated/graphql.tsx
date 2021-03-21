@@ -2,6 +2,8 @@ import gql from 'graphql-tag';
 import * as Urql from 'urql';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -44,6 +46,7 @@ export type Post = {
   updatedAt: Scalars['String'];
   title: Scalars['String'];
   text: Scalars['String'];
+  voteStatus?: Maybe<Scalars['Int']>;
   creator: User;
   points: Scalars['String'];
   creatorId: Scalars['Float'];
@@ -141,7 +144,7 @@ export type UsernamePasswordInput = {
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'textSnippet'>
+  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'points' | 'textSnippet' | 'voteStatus'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -289,6 +292,7 @@ export const PostSnippetFragmentDoc = gql`
   title
   points
   textSnippet
+  voteStatus
   creator {
     id
     username

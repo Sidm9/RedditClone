@@ -4,7 +4,7 @@ import { PostSnippetFragment, useVoteMutation } from "../generated/graphql";
 
 interface UpdootSectionProps {
   // Whole post will be fetched for this
-  
+
   post: PostSnippetFragment;
 }
 
@@ -22,6 +22,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
             value: 1,
           });
         }}
+        variantColor={post.voteStatus == 1 ? 'geren' : undefined}
         isLoading={loadingState === "updoot-loading"}
         aria-label="updoot post"
         icon="chevron-up"
@@ -34,6 +35,7 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
             value: -1,
           });
         }}
+        variantColor={post.voteStatus == -1 ? 'geren' : undefined}
         isLoading={loadingState === "downdoot-loading"}
         aria-label="downdoot post"
         icon="chevron-down"
