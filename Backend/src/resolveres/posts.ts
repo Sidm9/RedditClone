@@ -183,7 +183,7 @@ export class PostResolver {
 
   // THIS POST (19:19) IS NOT AN ARRAY ITS AN OBJECT THIS IS FOR A SINGLE QUERY 
   @Query(() => Post, { nullable: true })
-  post(@Arg("id") id: number): Promise<Post | undefined> {
+  post(@Arg("id" , () => Int  /* Specifying an integer here by () => */) id: number): Promise<Post | undefined> {
     return Post.findOne(id);
   }
 
