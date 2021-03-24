@@ -114,7 +114,7 @@ export class PostResolver {
     const replacements: any[] = [realLimitPlusOne, req.session.userId];
 
     let cursorIdx = 3;
-    
+
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
       cursorIdx = replacements.length;
@@ -134,11 +134,10 @@ export class PostResolver {
       'createdAt', u."createdAt",
       'updatedAt', u."updatedAt"
       ) creator,
-    ${
-      req.session.userId
+    ${req.session.userId
         ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
         : 'null as "voteStatus"'
-    }
+      }
     from post p
     inner join public.user u on u.id = p."creatorId"
     ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
@@ -183,8 +182,10 @@ export class PostResolver {
 
   // THIS POST (19:19) IS NOT AN ARRAY ITS AN OBJECT THIS IS FOR A SINGLE QUERY 
   @Query(() => Post, { nullable: true })
-  post(@Arg("id" , () => Int  /* Specifying an integer here by () => */) id: number): Promise<Post | undefined> {
-    return Post.findOne(id);
+  post(@Arg("id", () => Int  /* Specifying an integer here by () => */) id: number): Promise<Post | undefined> {
+    // Need Creator along with the Post 
+
+    return Post.findOne(id, { relations: ["creator"] }); // why creator ? Check Post entity
   }
 
   @Mutation(() => Post)
