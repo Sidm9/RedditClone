@@ -4,7 +4,7 @@ import { createUrqlClient } from '../../utils/createUrqlClient'
 import { useRouter } from 'next/router'
 import { usePostQuery } from '../../generated/graphql'
 import { Layout } from '../../components/Layout'
-import { Box } from '@chakra-ui/core'
+import { Box, Heading } from '@chakra-ui/core'
 
 const Post = ({ }) => {
     const router = useRouter();
@@ -49,7 +49,8 @@ const Post = ({ }) => {
     return (
 
         <Layout>
-            <h1> {data?.post?.title} </h1>
+            <Heading> {data?.post?.title} </Heading>
+            <h1> {data?.post.text} </h1>
 
         </Layout>
 
