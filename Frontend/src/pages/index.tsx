@@ -3,7 +3,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import React, { useState } from "react";
-import { Box, Button, Flex, Heading, Icon, IconButton, Link, Stack, Text } from "@chakra-ui/core";
+import { Box, Button, Flex, Heading, Link, Stack, Text } from "@chakra-ui/core";
 import { usePostsQuery } from "../generated/graphql";
 import { UpdootSection } from "../components/UpdootSection";
 
@@ -18,7 +18,7 @@ const Index = () => {
 
   if (!fetching && !data) {
     return <div>
-      Somethings is definately not right
+      Something is definitely not right
     </div>
   }
 
@@ -40,7 +40,11 @@ const Index = () => {
             <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
               <UpdootSection post={p} />
               <Box>
-                <Heading fontSize="xl">{p.title}</Heading>
+                <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                  <Link>
+                    <Heading fontSize="xl">{p.title}</Heading>
+                  </Link>
+                </NextLink>
                 <Text>posted by {p.creator.username}</Text>
                 <Text mt={4}>{p.textSnippet}</Text>
               </Box>
@@ -61,7 +65,7 @@ const Index = () => {
             m="auto"
             my={8}
           >
-            load more
+            Load more
           </Button>
         </Flex>
       ) : null}
