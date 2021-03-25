@@ -3,7 +3,7 @@ import { NavBar } from './NavBar';
 import Wrapper, { WrapperVariant } from './Wrapper';
 
 interface LayoutProps {
-    variant?: WrapperVariant // Better Praactise
+    variant?: WrapperVariant // Better Practise
 };
 
 export const Layout: React.FC<LayoutProps> = ({ children, variant }) => {

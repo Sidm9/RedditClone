@@ -49,7 +49,7 @@ const Post = ({ }) => {
     return (
 
         <Layout>
-            <Heading> {data?.post?.title} </Heading>
+            <Heading mb={4} > {data?.post?.title} </Heading>
             <h1> {data?.post.text} </h1>
 
         </Layout>
