@@ -3,4 +3,4 @@ Backend/src/type-orm.config.ts
 dist
 Frontend/.next
 .vscode
-Backend/src/utils/sendEmail.ts
+Backend/src/utils/sendEmail.ts  
