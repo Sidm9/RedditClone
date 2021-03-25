@@ -1,6 +1,6 @@
 node_modules
-src/mikro-orm.config.ts
+Backend/src/type-orm.config.ts
 dist
 Frontend/.next
 .vscode
-src/utils/sendEmail.ts
+Backend/src/utils/sendEmail.ts

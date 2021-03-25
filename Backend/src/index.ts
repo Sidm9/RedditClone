@@ -13,12 +13,8 @@ import cors from "cors";
 import conn from "./type-orm.config";
 
 const main = async () => {
-
-
+    
     conn();
-    
-
-    
 
     const app = express();
 
