@@ -219,11 +219,34 @@ export class PostResolver {
 
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg("id") id: number): Promise<boolean> {
-    await Post.delete(id);
+  @UseMiddleware(isAuth) // Before delete Check weather user is logged in or not
+  async deletePost(
+    @Arg("id", () => Int /* Typecasting to Int */)
+    id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<boolean> {
+
+    // NON CASCADE WAY !!!!
+
+
+    // const post = await Post.findOne(id)
+    // if (!post) {
+    //   return false;
+    // }
+    // // If post is not of the user who has creator then 
+    // if (post?.creatorId !== req.session.userId) {
+    //   throw new Error("Not authorized ")
+    // }
+
+    // await Updoot.delete({ postId: id }); // Updooot has also the data of post so first updoot will be deleted first
+    // await Post.delete({ id });
+
+
+    // THE CASCADE WAY (SEE UPDOOT ENTITY)
+    await Post.delete({ id, creatorId: req.session.userId });
+
     return true;
   }
-
 
 }
 
