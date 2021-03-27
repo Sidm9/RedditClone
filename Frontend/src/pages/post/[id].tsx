@@ -1,40 +1,27 @@
 import React from 'react'
 import { withUrqlClient } from 'next-urql'
 import { createUrqlClient } from '../../utils/createUrqlClient'
-import { useRouter } from 'next/router'
-import { usePostQuery } from '../../generated/graphql'
 import { Layout } from '../../components/Layout'
 import { Box, Heading } from '@chakra-ui/core'
+import { usePostQuery } from '../../generated/graphql'
+import { useGetIntId } from '../../utils/useGetIntId'
 
 const Post = ({ }) => {
-    const router = useRouter();
-    const intId = typeof router.query.id === "string" ? parseInt(router.query.id) : -1
 
-    // If string then cnovert to int else -1
-    // Parsing to int because graphql is taking Input (id) arg as a  as a paramter 
-    // -1 is so that one can skip or pause the queery
-    const [{ data, error, fetching }] = usePostQuery(
-        {
-            variables: {
-                id: intId
-            }
-        }
-    )
-
-
-
-    if (fetching) {
-        return (
-            <Layout>
-                <Box>loading...</Box>
-            </Layout>
-        )
-    }
-
-
-    if (error) {
-        return <div>{error.message}</div>
-    }
+  const intId = useGetIntId();
+  const [{ data, fetching }] = usePostQuery({
+    pause: intId === -1,
+    variables: {
+      id: intId,
+    },
+  });
+  if (fetching) {
+    return (
+      <Layout>
+        <div>loading...</div>
+      </Layout>
+    );
+  }
 
 
     if (!data?.post) {

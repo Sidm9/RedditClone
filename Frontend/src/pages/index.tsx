@@ -59,9 +59,7 @@ const Index = () => {
                           mr={4}
                           icon="edit"
                           aria-label="Edit Post"
-                          onClick={() => {
-                            deletePost({ id: p.id });
-                          }} />
+                        />
 
                       </NextLink>
 
