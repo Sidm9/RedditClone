@@ -6,6 +6,7 @@ import React, { useState } from "react";
 import { Box, Button, Flex, Heading, IconButton, Link, Stack, Text } from "@chakra-ui/core";
 import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { UpdootSection } from "../components/UpdootSection";
+import { EditDeletePostButtons } from "../components/EditDeletePostButton";
 
 const Index = () => {
 
@@ -46,35 +47,13 @@ const Index = () => {
                     {p.textSnippet}
                   </Text>
 
-                  { /* Ony show posts if the user exists */}
+                  <Box ml="auto">
+                    <EditDeletePostButtons
+                      id={p.id}
+                      creatorId={p.creator.id}
+                    />
+                  </Box>
 
-                  {meData?.me?.id !== p.creator.id ? null :
-                    <Box ml="auto">
-
-
-
-                      <NextLink href="/post/edit/[id]" as={`/post/edit/${p.id}`}>
-                        <IconButton
-                          ml="auto"
-                          mr={4}
-                          icon="edit"
-                          aria-label="Edit Post"
-                        />
-
-                      </NextLink>
-
-
-                      <IconButton
-                        ml="auto"
-                        // variantColor="red"
-                        icon="delete"
-                        aria-label="Delete Post"
-                        onClick={() => {
-                          deletePost({ id: p.id });
-                        }}
-
-                      />
-                    </Box>}
                 </Flex>
               </Box>
             </Flex>
