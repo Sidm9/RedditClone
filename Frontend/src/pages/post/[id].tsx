@@ -39,11 +39,12 @@ const Post = ({ }) => {
     <Layout>
       <Heading mb={4} > {data?.post?.title} </Heading>
       <h1> {data?.post.text} </h1>
-
-      <EditDeletePostButtons
-        id={data.post.id}
-        creatorId={data.post.creator.id}
-      />
+      <Box mt={4}>
+        <EditDeletePostButtons
+          id={data.post.id}
+          creatorId={data.post.creator.id}
+        />
+      </Box>
     </Layout>
 
   )

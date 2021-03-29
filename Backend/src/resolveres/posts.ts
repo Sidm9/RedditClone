@@ -4,6 +4,7 @@ import { Arg, Ctx, Field, FieldResolver, InputType, Int, Mutation, ObjectType, Q
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 import { Updoot } from "../entities/Updoot";
+import { User } from "../entities/User";
 
 @InputType()
 class PostInput {
@@ -34,6 +35,19 @@ export class PostResolver {
   }
 
 
+  // WHy this?
+  // Previous method returned everything 
+  // THe inner join part
+  // That basically damps the graphql part
+  @FieldResolver(() => User)
+  creator(@Root() post: Post) {
+    {
+      // For every post 1 query will be fetched 
+      // Thats bad 
+      // THis is known as (n+1) problem
+      return User.findOne(post.creatorId);
+    }
+  }
   // Only for the updoot part didnt create an seperate File for this
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
@@ -127,19 +141,11 @@ export class PostResolver {
     const posts = await getConnection().query(
       `
     select p.*,
-    json_build_object(
-      'id', u.id,
-      'username', u.username,
-      'email', u.email,
-      'createdAt', u."createdAt",
-      'updatedAt', u."updatedAt"
-      ) creator,
     ${req.session.userId
         ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
         : 'null as "voteStatus"'
       }
     from post p
-    inner join public.user u on u.id = p."creatorId"
     ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
     order by p."createdAt" DESC
     limit $1
@@ -185,7 +191,7 @@ export class PostResolver {
   post(@Arg("id", () => Int  /* Specifying an integer here by () => */) id: number): Promise<Post | undefined> {
     // Need Creator along with the Post 
 
-    return Post.findOne(id, { relations: ["creator"] }); // why creator ? Check Post entity
+    return Post.findOne(id);
   }
 
   @Mutation(() => Post)
