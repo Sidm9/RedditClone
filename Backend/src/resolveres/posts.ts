@@ -40,14 +40,10 @@ export class PostResolver {
   // THe inner join part
   // That basically damps the graphql part
   @FieldResolver(() => User)
-  creator(@Root() post: Post) {
-    {
-      // For every post 1 query will be fetched 
-      // Thats bad 
-      // THis is known as (n+1) problem
-      return User.findOne(post.creatorId);
-    }
+  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+    return userLoader.load(post.creatorId);
   }
+  
   // Only for the updoot part didnt create an seperate File for this
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)

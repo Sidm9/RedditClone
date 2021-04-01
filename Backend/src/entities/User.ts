@@ -18,7 +18,6 @@ export class User extends BaseEntity {
     username!: string;
 
 
-
     @Field() // type-graphql
     // NOTICE THE UNIQUE PROPERTY!
     @Column({ unique: true })
@@ -28,7 +27,6 @@ export class User extends BaseEntity {
     // THIS IS FOR HIDING THE FEILD
     @Column({})
     password!: string;
-
 
 
     @OneToMany(() => Post, (post) => post.creator)

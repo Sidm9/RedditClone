@@ -11,6 +11,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis'
 import cors from "cors";
 import conn from "./type-orm.config";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
     
@@ -65,7 +66,7 @@ const main = async () => {
 
         // Traditional req res from express 
         // Apollo Supports this!!! !
-        context: ({ req, res }) => ({ req, res, redis })
+        context: ({ req, res }) => ({ req, res, redis ,userLoader:createUserLoader() })
     })
 
     app.get('/', (_, res) => {
