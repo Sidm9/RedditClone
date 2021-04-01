@@ -33,8 +33,6 @@ export class PostResolver {
       return post.text.slice(0, 50);
     }
   }
-
-
   // WHy this?
   // Previous method returned everything 
   // THe inner join part
@@ -43,7 +41,23 @@ export class PostResolver {
   creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(post.creatorId);
   }
-  
+
+  @FieldResolver(() => Int, { nullable: true })
+  async voteStatus(
+    @Root() post: Post,
+    @Ctx() { updootLoader, req }: MyContext
+  ) {
+    if (!req.session.userId) {
+      return null;
+    }
+
+    const updoot = await updootLoader.load({
+      postId: post.id,
+      userId: req.session.userId,
+    });
+
+    return updoot ? updoot.value : null;
+  }
   // Only for the updoot part didnt create an seperate File for this
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
@@ -121,13 +135,11 @@ export class PostResolver {
      Will be false */
     const realLimitPlusOne = realLimit + 1
 
-    const replacements: any[] = [realLimitPlusOne, req.session.userId];
+    const replacements: any[] = [realLimitPlusOne];
 
-    let cursorIdx = 3;
 
     if (cursor) {
       replacements.push(new Date(parseInt(cursor)));
-      cursorIdx = replacements.length;
     }
 
 
@@ -136,19 +148,14 @@ export class PostResolver {
 
     const posts = await getConnection().query(
       `
-    select p.*,
-    ${req.session.userId
-        ? '(select value from updoot where "userId" = $2 and "postId" = p.id) "voteStatus"'
-        : 'null as "voteStatus"'
-      }
+    select p.*
     from post p
-    ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
+    ${cursor ? `where p."createdAt" < $2` : ""}
     order by p."createdAt" DESC
     limit $1
     `,
       replacements
     );
-
     // Dont know what is going wrong with typeorm so back to raw queries
 
     // TYPEORM QUERY BUILDER
