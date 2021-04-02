@@ -69,14 +69,17 @@ const cursorPagination = (): Resolver => {
 };
 
 const invalidateAllPosts = (cache: Cache) => {
+  // @ts-ignore
   const allFields = cache.inspectFields("Query");
-  const fieldInfos = allFields.filter(
-    (info) => info.fieldName === "posts"
-  );
+  // @ts-ignore
+  const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
+  // @ts-ignore
   fieldInfos.forEach((fi) => {
+    // @ts-ignore
     cache.invalidate("Query", "posts", fi.arguments || {});
   });
 }
+
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
@@ -147,6 +150,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
             },
             // Cachine Create Posts  (When posted it should cached the posts in the home page)
             createPost: (_result, _args, cache, _info) => {
+              // @ts-ignore
               invalidateAllPosts(cache);
             },
 
