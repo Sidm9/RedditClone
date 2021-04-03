@@ -1,13 +1,13 @@
 import argon2 from "argon2";
+import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
+import { getConnection } from "typeorm";
+import { v4 } from 'uuid';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { User } from "../entities/User";
 import { MyContext } from "../types";
-import { Arg, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
-import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
-import { UsernamePasswordInput } from "./UsernamePasswordInput";
-import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
-import { v4 } from 'uuid';
-import { getConnection } from "typeorm";
+import { validateRegister } from "../utils/validateRegister";
+import { UsernamePasswordInput } from "./UsernamePasswordInput";
 @ObjectType()
 // If something is wrong with the field
 class FieldError {
@@ -131,7 +131,7 @@ export class UserResolver {
 
         await sendEmail( // From the nodemailer 
             email,
-            `<a href="http://localhost:3000/change-password/${token}">reset password</a>`
+            `<a href=${process.env.CORS_ORIGIN}/change-password/${token}">reset password</a>`
         );// Generate a TOKEN FROM THE REDIS AND THAT WILL REFERENCEE TO THE USER WHO WANTS TO CHANGE THE PASS
 
         return true;

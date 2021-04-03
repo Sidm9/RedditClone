@@ -1,36 +1,52 @@
-import "reflect-metadata";
-import { COOKIE_NAME, __prod__ } from './constants'
-import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+import cors from "cors";
+import "dotenv-safe/config";
+import express from 'express';
+import session from 'express-session';
+import Redis from "ioredis";
+import path from "path";
+import "reflect-metadata";
 import { buildSchema } from "type-graphql";
+import { createConnection } from "typeorm";
+import { COOKIE_NAME, __prod__ } from './constants';
+import { Post } from "./entities/Post";
+import { Updoot } from "./entities/Updoot";
+import { User } from "./entities/User";
 import { HelloResolver } from "./resolveres/hello";
 import { PostResolver } from "./resolveres/posts";
 import { UserResolver } from "./resolveres/user";
-import Redis from "ioredis";
-import session from 'express-session';
-import connectRedis from 'connect-redis'
-import cors from "cors";
-import conn from "./type-orm.config";
-import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
+import { createUserLoader } from "./utils/createUserLoader";
 
 const main = async () => {
 
-    conn();
+    const conn = createConnection({
+        type: "postgres",
+        url: process.env.DATABASE_URL,
+        logging: true,
+        // synchronize: true,
+        migrations: [path.join(__dirname, "./migrations/*")],
+        entities: [Post, User, Updoot],
+    });
+    (await conn).runMigrations();
+
+    // await Post.delete({});
+
 
     const app = express();
 
     // REDIS BOILERPLATE FROM DOCS
 
     const RedisStore = connectRedis(session);
-    const redis = new Redis();
-
-
+    const redis = new Redis(process.env.REDIS_URL);
+    app.set("proxy" , 1) // Tell express that we have a proxy setup so that express does the session and cookie stuff
+    
     // LOGIN CORS REQUEST
 
     app.use(
         cors({
-            origin: "http://localhost:3000",
+            origin: process.env.CORS_ORIGIN,
             credentials: true,
         })
     );
@@ -47,10 +63,11 @@ const main = async () => {
                 sameSite: "lax", // CSRF
                 httpOnly: true,   //security reasons
                 secure: __prod__ // cookie only works in https
+                // domain: __prod__ ?  "Add your domain" : undefined
             },
             saveUninitialized: false,
-            secret: 'qpoweioirteirheigruhiur',
-            resave: false, 
+            secret: process.env.SESSION_SECRET,
+            resave: false,
 
         })
     )
@@ -82,7 +99,7 @@ const main = async () => {
 
     apolloServer.applyMiddleware({ app, cors: false, });
 
-    app.listen(4000, () => {
+    app.listen(parseInt(process.env.PORT), () => {
         console.log("Server Started on localhost:4000")
     });
     // const post = orm.em.create(Post, { title: 'my First Post' });

@@ -4,3 +4,4 @@ dist
 Frontend/.next
 .vscode
 Backend/src/utils/sendEmail.ts  
+Backend/.env
