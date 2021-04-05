@@ -14,7 +14,7 @@ const Login: React.FC<{}> = ({ }) => {
     // Use Login Mutaion is a hook generated from the 
     // graph.tsx in graphql folder
     // --- all this is generated from graphql-code-generator ---
-    const [, login] = useLoginMutation();
+    const [login] = useLoginMutation();
 
     // For routing to other pages hook
     const router = useRouter();
@@ -29,7 +29,7 @@ const Login: React.FC<{}> = ({ }) => {
                     // THIS IS FROM THE NEW MANNER OF GRAPQL QUERY WE ARE USING IT
                     // SLIGHTLY DIFFERENT FROM THE REGISTER.GRAPQHQL
 
-                    const response = await login(values);
+                    const response = await login( {variables: values});
                     if (response.data?.login.errors) {
                         // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
                         setErrors(toErrorMap(response.data.login.errors));
@@ -91,4 +91,4 @@ const Login: React.FC<{}> = ({ }) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Login);
+export default Login; 

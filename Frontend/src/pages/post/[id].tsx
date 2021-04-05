@@ -10,13 +10,13 @@ import { EditDeletePostButtons } from '../../components/EditDeletePostButton'
 const Post = ({ }) => {
 
   const intId = useGetIntId();
-  const [{ data, fetching }] = usePostQuery({
-    pause: intId === -1,
+  const { data, loading } = usePostQuery({
+    skip: intId === -1,
     variables: {
       id: intId,
     },
   });
-  if (fetching) {
+  if (loading) {
     return (
       <Layout>
         <div>loading...</div>
@@ -50,4 +50,4 @@ const Post = ({ }) => {
   )
 }
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Post);
+export default Post;

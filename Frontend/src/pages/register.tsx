@@ -14,7 +14,7 @@ const Register: React.FC<registerProps> = ({ }) => {
     // Use Register Mutaion is a hook generated from the 
     // graph.tsx in graphql folder
     // --- all this is generated from graphql-code-generator ---
-    const [, register] = useRegisterMutation();
+    const [register] = useRegisterMutation();
 
     // For routing to other pages hook
     const router = useRouter();
@@ -23,7 +23,7 @@ const Register: React.FC<registerProps> = ({ }) => {
             <Formik
                 initialValues={{ email: "", username: "", password: "" }}
                 onSubmit={async (values, { setErrors }) => {
-                    const response = await register({ options: values });
+                    const response = await register({ variables: { options: values } });
                     if (response.data?.register.errors) {
                         // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
                         setErrors(toErrorMap(response.data.register.errors));
@@ -56,7 +56,7 @@ const Register: React.FC<registerProps> = ({ }) => {
                         </Box>
                         <Box mt={4}>
 
-                            
+
                             <InputField
                                 name="password"
                                 placeholder="password"
@@ -80,4 +80,4 @@ const Register: React.FC<registerProps> = ({ }) => {
     );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Register);
+export default Register;

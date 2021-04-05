@@ -11,21 +11,24 @@ import { EditDeletePostButtons } from "../components/EditDeletePostButton";
 const Index = () => {
 
   const [variables, setVariables] = useState({ limit: 33, cursor: null as null | string })
-  const [{ data, fetching }] = usePostsQuery({
+  const { data, error, loading } = usePostsQuery({
     variables,
   });
 
 
-  if (!fetching && !data) {
-    return <div>
-      Something is definitely not right
-    </div>
+  if (!loading && !data) {
+    return (
+      <div>
+        <div>you got query failed for some reason</div>
+        <div>{error?.message}</div>
+      </div>
+    );
   }
 
   return (
 
     <Layout>
-      {!data && fetching ? (
+      {!data && loading ? (
         <div>loading..</div>
       ) : (
         <Stack spacing={8}>
@@ -46,11 +49,11 @@ const Index = () => {
                   </Text>
 
                   {/* <Box ml="auto"> */}
-                
+
                   <EditDeletePostButtons
-                        id={p.id}
-                        creatorId={p.creator.id}
-                      />
+                    id={p.id}
+                    creatorId={p.creator.id}
+                  />
                   {/* </Box> */}
 
                 </Flex>
@@ -68,7 +71,7 @@ const Index = () => {
                 cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
               });
             }}
-            isLoading={fetching}
+            isLoading={loading}
             m="auto"
             my={8}
           >
@@ -80,4 +83,4 @@ const Index = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default Index;

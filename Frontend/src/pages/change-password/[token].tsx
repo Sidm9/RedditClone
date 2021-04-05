@@ -15,7 +15,7 @@ const ChangePassword: NextPage<{ token: string }> = () => {
 
     const router = useRouter();
 
-    const [, changePassword] = useChangePasswordMutation();
+    const [changePassword] = useChangePasswordMutation();
 
     // FOR HANDLING THE EDGE CASE HOOK (WHEN TOKEN IS MISSING)
     const [tokenError, setTokenError] = useState("");
@@ -32,10 +32,12 @@ const ChangePassword: NextPage<{ token: string }> = () => {
                         // SLIGHTLY DIFFERENT FROM THE REGISTER.GRAPQHQL
 
                         const response = await changePassword({
-                            newPassword: values.newPassword,
-                            token:
-                              typeof router.query.token === "string" ? router.query.token : "",
-                          }); // Token can come from the router tooo..... if " " then ERRORR!
+                            variables: {
+                                newPassword: values.newPassword,
+                                token:
+                                    typeof router.query.token === "string" ? router.query.token : "",
+                            }
+                        }); // Token can come from the router tooo..... if " " then ERRORR!
                         if (response.data?.changePassword.errors) {
                             const errorMap = toErrorMap(response.data.changePassword.errors)
                             // SENGING THE ERROR MESSAGES TO ERROR MAP FILE IN UTILS
@@ -90,4 +92,4 @@ const ChangePassword: NextPage<{ token: string }> = () => {
     )
 }
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default ChangePassword;
