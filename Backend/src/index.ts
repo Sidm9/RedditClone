@@ -40,7 +40,7 @@ const main = async () => {
 
     const RedisStore = connectRedis(session);
     const redis = new Redis(process.env.REDIS_URL);
-    app.set("proxy" , 1) // Tell express that we have a proxy setup so that express does the session and cookie stuff
+    app.set("trust proxy" , 1) // Tell express that we have a proxy setup so that express does the session and cookie stuff
     
     // LOGIN CORS REQUEST
 
