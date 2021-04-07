@@ -9,7 +9,6 @@ export const useIsAuth = () => {
 
     const { data, loading } = useMeQuery();
     const router = useRouter();
-    console.log("USEIS AUTHHH ", router);
     useEffect(() => {
         if (!loading && !data?.me) {
             router.replace("/login?next= " + router.pathname) // After login go back to create-post

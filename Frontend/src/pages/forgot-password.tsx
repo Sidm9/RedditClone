@@ -1,11 +1,9 @@
 import { Box, Button } from '@chakra-ui/core';
-import { Formik, Form } from 'formik';
-import { withUrqlClient } from 'next-urql';
-import React, { useState } from 'react'
+import { Form, Formik } from 'formik';
+import React, { useState } from 'react';
 import { InputField } from '../components/InputField';
 import Wrapper from '../components/Wrapper';
 import { useForgotPasswordMutation } from '../generated/graphql';
-import { createUrqlClient } from '../utils/createUrqlClient';
 
 const ForgotPassword: React.FC<{}> = ({ }) => {
     const [complete, setComplete] = useState(false);
